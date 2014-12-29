@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QClipboard>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -43,6 +45,18 @@ void MainWindow::initVETable()
     for(int i = 0; i < veRows.length(); i++)
         veTable->insertRow(i);
 
+    for(int i = 0, j = 0, k = 0; k < veColumns.length()*veRows.length(); i++, k++)
+    {
+        if(i == veColumns.length())
+        {
+            i = 0;
+            j++;
+        }
+
+        QTableWidgetItem *item = new QTableWidgetItem();
+        veTable->setItem(j, i, item);
+    }
+
     veTable->setHorizontalHeaderLabels(veColumns);
     veTable->setVerticalHeaderLabels(veRows);
 
@@ -75,15 +89,58 @@ void MainWindow::veCreateActions()
     connect(veCopyAction, SIGNAL(triggered()), this, SLOT(veCopy()));
 
     vePasteAction = new QAction("Paste", this);
+    connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
+
     veLoad2gAction = new QAction("Load Default 2G Table", this);
+    connect(veLoad2gAction, SIGNAL(triggered()), this, SLOT(veLoad2g()));
+
     veLoad1gAction = new QAction("Load Default 1G Table", this);
     veLoadEvoAction = new QAction("Load Default EVO8 Table", this);
 }
 
 void MainWindow::veCopy()
 {
-    // copy selection to clipboard
-    qDebug("Copied!\n");
+    qDebug() << "Copied";
+}
+
+void MainWindow::vePaste()
+{
+    // get clipboard contents
+    QClipboard *clipboard = QApplication::clipboard();
+    QString clipText = clipboard->text();
+
+    QStringList clipRows = clipText.split("\n");
+    QStringList clipCells = {0};
+
+    for(int i = 0; i < clipRows.length(); i++)
+        clipCells.append(clipRows[i].split("\t"));
+
+    clipCells.removeFirst();
+    clipCells.removeLast();
+
+
+    for(int i = 0, j = 0, k = 0; k < clipCells.count(); i++, k++)
+    {
+        if(i == veTable->columnCount())
+        {
+            // reset column index
+            i = 0;
+
+            // increment row index
+            j++;
+        }
+
+        qDebug() << clipCells[k];
+        QTableWidgetItem *item = veTable->item(j, i);
+
+        if(item)
+            item->setText(clipCells[k]);
+    }
+}
+
+void MainWindow::veLoad2g()
+{
+    qDebug() << "Loading 2g";
 }
 
 void MainWindow::veRightClick(QPoint p)

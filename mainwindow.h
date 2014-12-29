@@ -21,8 +21,8 @@ public:
 public slots:
     void veRightClick(QPoint);
     void veCopy();
-    //void vePaste();
-    //void veLoad2g();
+    void vePaste();
+    void veLoad2g();
     //void veLoad1g();
     //void veLoadEvo();
 
