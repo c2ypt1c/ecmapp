@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QClipboard>
 #include <QDebug>
+#include <QRegularExpression>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -177,7 +178,7 @@ void MainWindow::veCopy()
         }
     }
 
-    qDebug() << clipboard->text();
+    //qDebug() << clipboard->text();
 }
 
 void MainWindow::vePaste()
@@ -185,6 +186,16 @@ void MainWindow::vePaste()
     // get clipboard contents
     QClipboard *clipboard = QApplication::clipboard();
     QString clipText = clipboard->text();
+
+    // input validation
+
+    QRegularExpressionMatch m = QRegularExpression("([0-9]+\\.[0-9]+[\\t\\n])+").match(clipText);
+
+    if(!m.hasMatch())
+    {
+        qDebug() << "[Error] Clipboard contains non-numeric values";
+        return;
+    }
 
     QStringList clipRows = clipText.split("\n");
     QStringList clipStrings = {0};
@@ -195,6 +206,12 @@ void MainWindow::vePaste()
     clipStrings.removeFirst();
     clipStrings.removeLast();
 
+    // make sure entire table is copied
+    if(clipStrings.length() != veTable->columnCount()*veTable->rowCount())
+    {
+        qDebug() << "[Error] Invalid Data";
+        return;
+    }
 
     for(int i = 0, j = 0, k = 0; k < clipStrings.count(); i++, k++)
     {
@@ -207,7 +224,8 @@ void MainWindow::vePaste()
             j++;
         }
 
-        qDebug() << clipStrings[k];
+        //qDebug() << clipStrings[k];
+
         QTableWidgetItem *item = veTable->item(j, i);
 
         if(item)
