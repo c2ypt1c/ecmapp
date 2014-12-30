@@ -91,11 +91,8 @@ void MainWindow::veCreateActions()
     vePasteAction = new QAction("Paste Table", this);
     connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
 
-    veLoad2gAction = new QAction("Load Default 2G Table", this);
-    connect(veLoad2gAction, SIGNAL(triggered()), this, SLOT(veLoad2g()));
-
-    veLoad1gAction = new QAction("Load Default 1G Table", this);
-    veLoadEvoAction = new QAction("Load Default EVO8 Table", this);
+    veLoadDefaultAction = new QAction("Load A Default VE Table...", this);
+    connect(veLoadDefaultAction, SIGNAL(triggered()), this, SLOT(veLoadDefault()));
 }
 
 void MainWindow::veSetCell(QTableWidgetItem *itm, QString val)
@@ -219,9 +216,10 @@ void MainWindow::vePaste()
     }
 }
 
-void MainWindow::veLoad2g()
+void MainWindow::veLoadDefault()
 {
-    qDebug() << "Loading 2g";
+    // pop to choose between 1g, 2g, or evo
+    qDebug() << "Loading Default";
 }
 
 void MainWindow::veRightClick(QPoint p)
@@ -229,8 +227,7 @@ void MainWindow::veRightClick(QPoint p)
     QMenu *veMenu=new QMenu(this);
     veMenu->addAction(veCopyAction);
     veMenu->addAction(vePasteAction);
-    veMenu->addAction(veLoad2gAction);
-    veMenu->addAction(veLoad1gAction);
-    veMenu->addAction(veLoadEvoAction);
+    veMenu->addSeparator();
+    veMenu->addAction(veLoadDefaultAction);
     veMenu->popup(veTable->viewport()->mapToGlobal(p));
 }

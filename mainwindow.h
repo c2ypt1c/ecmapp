@@ -22,9 +22,7 @@ public slots:
     void veRightClick(QPoint);
     void veCopy();
     void vePaste();
-    void veLoad2g();
-    //void veLoad1g();
-    //void veLoadEvo();
+    void veLoadDefault();
 
 private:
     void veSetCell(QTableWidgetItem *, QString);
@@ -34,9 +32,7 @@ private:
     // actions
     QAction *veCopyAction;
     QAction *vePasteAction;
-    QAction *veLoad2gAction;
-    QAction *veLoad1gAction;
-    QAction *veLoadEvoAction;
+    QAction *veLoadDefaultAction;
 };
 
 #endif // MAINWINDOW_H
