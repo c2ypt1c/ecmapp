@@ -98,8 +98,79 @@ void MainWindow::veCreateActions()
     veLoadEvoAction = new QAction("Load Default EVO8 Table", this);
 }
 
+void MainWindow::veSetCell(QTableWidgetItem *itm, QString val)
+{
+    itm->setText(val);
+
+    float v = val.toFloat();
+
+    QColor c;
+
+    // set edge cases
+    if(v <= 50)
+    {
+        itm->setBackgroundColor(QColor(0,240,240));
+        return;
+    }
+
+    else if(v >= 115)
+    {
+        itm->setBackgroundColor((QColor(255,0,0)));
+        return;
+    }
+
+    if(v >= 50 && v < 62)
+    {
+        c.setBlue(240);
+        c.setGreen(240-(v-50)*7.4);
+        c.setRed(0);
+    }
+    else if(v >= 62 && v < 75)
+    {
+        c.setBlue(240-((v-62)*18.4));
+        c.setGreen(155+(v-62)*8);
+        c.setRed(0);
+    }
+    else if(v >= 75 && v < 82)
+    {
+        c.setBlue((v-75)*19.4);
+        c.setGreen(255);
+        c.setRed((v-75)*36.4);
+    }
+    else if(v >= 82 && v < 89)
+    {
+        c.setBlue(136-((v-82)*19.4));
+        c.setGreen(250);
+        c.setRed(255);
+    }
+    else if(v >= 89 && v < 115)
+    {
+        c.setBlue(0);
+        c.setGreen(250-(v-89)*9.6);
+        c.setRed(255);
+    }
+
+    itm->setBackgroundColor(c);
+}
+
 void MainWindow::veCopy()
 {
+    QClipboard *clipboard = QApplication::clipboard();
+
+    for(int i = 0, j = 0, k = 0; k < veTable->columnCount()*veTable->rowCount(); i++, k++)
+    {
+        if(i == veTable->columnCount())
+        {
+            i = 0;
+            j++;
+        }
+
+        QTableWidgetItem *item = veTable->item(j, i);
+
+        if(item)
+            clipboard->setText(clipboard->text() + item->text());
+    }
+
     qDebug() << "Copied";
 }
 
@@ -110,16 +181,16 @@ void MainWindow::vePaste()
     QString clipText = clipboard->text();
 
     QStringList clipRows = clipText.split("\n");
-    QStringList clipCells = {0};
+    QStringList clipStrings = {0};
 
     for(int i = 0; i < clipRows.length(); i++)
-        clipCells.append(clipRows[i].split("\t"));
+        clipStrings.append(clipRows[i].split("\t"));
 
-    clipCells.removeFirst();
-    clipCells.removeLast();
+    clipStrings.removeFirst();
+    clipStrings.removeLast();
 
 
-    for(int i = 0, j = 0, k = 0; k < clipCells.count(); i++, k++)
+    for(int i = 0, j = 0, k = 0; k < clipStrings.count(); i++, k++)
     {
         if(i == veTable->columnCount())
         {
@@ -130,11 +201,12 @@ void MainWindow::vePaste()
             j++;
         }
 
-        qDebug() << clipCells[k];
+        qDebug() << clipStrings[k];
         QTableWidgetItem *item = veTable->item(j, i);
 
         if(item)
-            item->setText(clipCells[k]);
+            veSetCell(item, clipStrings[k]);
+            //item->setText(clipStrings[k]);
     }
 }
 

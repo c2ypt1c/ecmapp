@@ -27,6 +27,7 @@ public slots:
     //void veLoadEvo();
 
 private:
+    void veSetCell(QTableWidgetItem *, QString);
     Ui::MainWindow *ui;
     QTableWidget *veTable;
 
