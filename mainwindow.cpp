@@ -34,7 +34,7 @@ void MainWindow::initVETable()
         "0(30\"hg)", "1.8(26.3)", "3.7(22.5)", "5.5(18.8)",
         "7.3(15.1)", "9.2(11.2)", "11.0(7.6)", "12.9(3.7)",
         "14.7(0psi)", "16.5(1.8)", "18.4(3.7)", "20.2(5.5)",
-        "22.0(7.3)", "23.9(9.2)", "25.7(11.0)", "29.4(14.7)",
+        "22.0(7.3)", "23.9(9.2)", "25.7(11.0)", "27.6(12.9)", "29.4(14.7)",
         "31.2(16.5)", "33.1(18.4)", "36.7(22.0)", "40.4(25.7)",
         "44.1(29.4)", "47.8(33.1)", "51.4(36.7)", "55.1(40.4)"
     };
@@ -61,7 +61,7 @@ void MainWindow::initVETable()
     veTable->setVerticalHeaderLabels(veRows);
 
     veTable->horizontalHeader()->setDefaultSectionSize(54);
-    veTable->verticalHeader()->setDefaultSectionSize(25);
+    veTable->verticalHeader()->setDefaultSectionSize(24);
 
     for(int i = 0; i < veRows.length(); i++)
     {
@@ -85,10 +85,10 @@ void MainWindow::initVETable()
 
 void MainWindow::veCreateActions()
 {
-    veCopyAction = new QAction("Copy", this);
+    veCopyAction = new QAction("Copy Table", this);
     connect(veCopyAction, SIGNAL(triggered()), this, SLOT(veCopy()));
 
-    vePasteAction = new QAction("Paste", this);
+    vePasteAction = new QAction("Paste Table", this);
     connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
 
     veLoad2gAction = new QAction("Load Default 2G Table", this);
@@ -157,6 +157,8 @@ void MainWindow::veCopy()
 {
     QClipboard *clipboard = QApplication::clipboard();
 
+    clipboard->clear();
+
     for(int i = 0, j = 0, k = 0; k < veTable->columnCount()*veTable->rowCount(); i++, k++)
     {
         if(i == veTable->columnCount())
@@ -168,10 +170,17 @@ void MainWindow::veCopy()
         QTableWidgetItem *item = veTable->item(j, i);
 
         if(item)
-            clipboard->setText(clipboard->text() + item->text());
+        {
+            if(i < 1 && j < 1)
+                clipboard->setText(item->text());
+            else if(i < 1 && j > 0)
+                clipboard->setText(clipboard->text() + "\n" + item->text());
+            else
+                clipboard->setText(clipboard->text() + "\t" + item->text());
+        }
     }
 
-    qDebug() << "Copied";
+    qDebug() << clipboard->text();
 }
 
 void MainWindow::vePaste()
