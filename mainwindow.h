@@ -15,10 +15,12 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void initMafTable();
     void initVETable();
     void veCreateActions();
 
 public slots:
+    void importLog();
     void veRightClick(QPoint);
     void veCopy();
     void vePaste();
@@ -27,6 +29,7 @@ public slots:
 private:
     void veSetCell(QTableWidgetItem *, QString);
     Ui::MainWindow *ui;
+    QTableWidget *mafTable;
     QTableWidget *veTable;
 
     // actions
