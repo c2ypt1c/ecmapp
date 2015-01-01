@@ -14,8 +14,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    vetable.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    vetable.h
 
 FORMS    += mainwindow.ui
