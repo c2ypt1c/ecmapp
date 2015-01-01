@@ -16,6 +16,7 @@ public:
     void veCreateActions();
 
 public slots:
+    void veUpdate(QTableWidgetItem *);
     void veRightClick(QPoint);
     void veCopy();
     void vePaste();

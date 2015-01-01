@@ -11,6 +11,9 @@ VeTable::VeTable(QWidget *parent):
 {
     veTable = this;
 
+    connect(veTable, SIGNAL(itemChanged(QTableWidgetItem*)), SLOT(veUpdate(QTableWidgetItem*)));
+    connect(veTable, SIGNAL(cellDoubleClicked(int,int)), SLOT(veEdit(int, int)));
+
     const QStringList veColumns = {
         "0rpm", "500", "1000", "1500",
         "2000", "2500", "3000", "3500",
@@ -90,15 +93,24 @@ void VeTable::veCreateActions()
     connect(veLoadDefaultAction, SIGNAL(triggered()), this, SLOT(veLoadDefault()));
 }
 
-void VeTable::veSetCell(QTableWidgetItem *itm, QString val)
+void VeTable::veUpdate(QTableWidgetItem *itm)
 {
-    itm->setText(val);
+    QString t = itm->text();
 
-    float v = val.toFloat();
+    // if empty
+    if(t == "")
+        return;
 
-    QColor c;
+    // if non-number
+    QRegularExpressionMatch m = QRegularExpression("^[0-9]+(\\.[0-9]+)?$").match(t);
+    if(!m.hasMatch())
+    {
+        itm->setText("0.0");
+        return;
+    }
 
-    // set edge cases
+    float v = t.toFloat();
+
     if(v <= 50)
     {
         itm->setBackgroundColor(QColor(0,240,240));
@@ -108,39 +120,51 @@ void VeTable::veSetCell(QTableWidgetItem *itm, QString val)
     else if(v >= 115)
     {
         itm->setBackgroundColor((QColor(255,0,0)));
+
+        if(v > 127.5)
+            itm->setText("127.5");
+
         return;
     }
 
+    QColor c;
     if(v >= 50 && v < 62)
     {
         c.setBlue(240);
         c.setGreen(240-(v-50)*7.4);
         c.setRed(0);
     }
+
     else if(v >= 62 && v < 75)
     {
         c.setBlue(240-((v-62)*18.4));
         c.setGreen(155+(v-62)*8);
         c.setRed(0);
     }
+
     else if(v >= 75 && v < 82)
     {
         c.setBlue((v-75)*19.4);
         c.setGreen(255);
         c.setRed((v-75)*36.4);
     }
+
     else if(v >= 82 && v < 89)
     {
         c.setBlue(136-((v-82)*19.4));
         c.setGreen(250);
         c.setRed(255);
     }
+
     else if(v >= 89 && v < 115)
     {
         c.setBlue(0);
         c.setGreen(250-(v-89)*9.6);
         c.setRed(255);
     }
+
+    else
+        return;
 
     itm->setBackgroundColor(c);
 }
@@ -223,8 +247,7 @@ void VeTable::vePaste()
         QTableWidgetItem *item = veTable->item(j, i);
 
         if(item)
-            veSetCell(item, clipStrings[k]);
-            //item->setText(clipStrings[k]);
+            item->setText(clipStrings[k]);
     }
 }
 
