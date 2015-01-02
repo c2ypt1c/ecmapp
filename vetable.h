@@ -3,7 +3,6 @@
 
 #include <QTableWidget>
 
-
 class VeTable: public QTableWidget
 {
     Q_OBJECT

@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "cvsimport.h"
 #include <QMainWindow>
 #include <QTableWidget>
+#include <QFile>
 
 namespace Ui {
 class MainWindow;
@@ -17,12 +17,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void parseCsv(QString);
+
 public slots:
     void importCvs();
 
 private:
     Ui::MainWindow *ui;
-    CvsImport *cvs;
+    QFile *csvFile;
 };
 
 #endif // MAINWINDOW_H

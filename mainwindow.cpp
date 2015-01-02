@@ -1,9 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "cvsimport.h"
 #include <QClipboard>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,6 +26,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::importCvs()
 {
-    qDebug() << "import!";
-    MainWindow::cvs = new CvsImport();
+    QFileDialog importDialog(this);
+    importDialog.setNameFilter("ECMLink Export (*.csv)");
+
+    if(importDialog.exec())
+    {
+        QStringList filenames = importDialog.selectedFiles();
+        qDebug() << filenames;
+
+        parseCsv(filenames[0]);
+    }
+}
+
+void MainWindow::parseCsv(QString n)
+{
+    csvFile = new QFile(n);
+    qDebug() << "file opened";
 }
