@@ -52,7 +52,7 @@ VeTable::VeTable(QWidget *parent):
     veTable->setVerticalHeaderLabels(veRows);
 
     veTable->horizontalHeader()->setDefaultSectionSize(49);
-    veTable->verticalHeader()->setDefaultSectionSize(23);
+    veTable->verticalHeader()->setDefaultSectionSize(24);
 
     // row header text align right
     for(int i = 0; i < veRows.length(); i++)
