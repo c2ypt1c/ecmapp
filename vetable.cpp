@@ -70,6 +70,8 @@ VeTable::VeTable(QWidget *parent):
     veCreateActions();
     veTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(veTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(veRightClick(QPoint)));
+
+    veLoadDefault();
 }
 
 VeTable::~VeTable()

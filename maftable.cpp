@@ -44,6 +44,7 @@ void MafTable::initMafTable()
     for(int row = 0; row < mafRows.length(); row++)
     {
         QTableWidgetItem *item = new QTableWidgetItem();
+        item->setText("0.0");
         mafTable->setItem(row, 0, item);
         mafTable->item(row, 0)->setTextAlignment(Qt::AlignRight);
     }
