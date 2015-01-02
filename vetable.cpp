@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QMenu>
+#include <QMessageBox>
 #include "vetable.h"
 
 VeTable::VeTable(QWidget *parent):
@@ -194,8 +195,6 @@ void VeTable::veCopy()
                 clipboard->setText(clipboard->text() + "\t" + item->text());
         }
     }
-
-    //qDebug() << clipboard->text();
 }
 
 void VeTable::vePaste()
@@ -210,7 +209,7 @@ void VeTable::vePaste()
 
     if(!m.hasMatch())
     {
-        qDebug() << "[Error] Clipboard contains non-numeric values";
+        QMessageBox::warning(NULL, "", "Copy Speed Density table from ECMLink first");
         return;
     }
 
@@ -226,7 +225,7 @@ void VeTable::vePaste()
     // make sure entire table is copied
     if(clipStrings.length() != veTable->columnCount()*veTable->rowCount())
     {
-        qDebug() << "[Error] Invalid Data";
+        QMessageBox::warning(NULL, "", "Copy Speed Density table from ECMLink first");
         return;
     }
 
@@ -240,8 +239,6 @@ void VeTable::vePaste()
             // increment row index
             j++;
         }
-
-        //qDebug() << clipStrings[k];
 
         QTableWidgetItem *item = veTable->item(j, i);
 

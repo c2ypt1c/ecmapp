@@ -5,6 +5,9 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QApplication>
+#include <QRegularExpression>
+#include <QMessageBox>
+#include <QtGui>
 
 MafTable::MafTable(QWidget *parent):
     QTableWidget (parent)
@@ -78,13 +81,53 @@ void MafTable::mafCopy()
         if(item)
             clipboard->setText(clipboard->text() + QString("%1\t%2\n").arg(mafTable->verticalHeaderItem(row)->text(), mafTable->item(row,0)->text()));
     }
-
-    //qDebug() << clipboard->text();
 }
 
 void MafTable::mafPaste()
 {
+    // get clipboard contents
+    QClipboard *clipboard = QApplication::clipboard();
+    QString clipText = clipboard->text();
 
+    // input validation
+    QRegularExpressionMatch m = QRegularExpression("([0-9]+\\.[0-9]+[\\t\\n])+").match(clipText);
+    if(!m.hasMatch())
+    {
+        QMessageBox::warning(NULL, "", "Copy MAF Comp table from ECMLink first");
+        return;
+    }
+
+    QStringList clipRows = clipText.split("\n");
+    clipRows.removeLast();
+
+    QStringList clipStrings = {0};
+
+    for(int i = 0; i < clipRows.length(); i++)
+    {
+        m = QRegularExpression("[0-9]+\\t([0-9]+(\\.[0-9]+)?)").match(clipRows[i]);
+
+        if(m.hasMatch())
+            clipStrings.append(m.captured(1));
+    }
+    clipStrings.removeFirst();
+
+    // make sure entire table is copied
+    if(clipStrings.length() != mafTable->rowCount())
+    {
+        QMessageBox::warning(NULL, "", "Copy MAF Comp table from ECMLink first");
+        return;
+    }
+
+    for(int row = 0; row < clipStrings.count(); row++)
+    {
+        QTableWidgetItem *item = mafTable->item(row, 0);
+
+        if(item)
+        {
+            item->setText(clipStrings[row]);
+            item->setTextAlignment(Qt::AlignRight);
+        }
+    }
 }
 
 void MafTable::mafRightClick(QPoint p)
