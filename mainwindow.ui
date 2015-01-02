@@ -73,7 +73,7 @@
                  <widget class="QLabel" name="veTableLabel">
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
+                    <width>65</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -150,7 +150,7 @@
               <item alignment="Qt::AlignRight">
                <widget class="QTableWidget" name="mafTableWidget">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="maximumSize">
                  <size>
@@ -178,7 +178,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="fileMenu">
