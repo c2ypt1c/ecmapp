@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "cvsimport.h"
 #include <QMainWindow>
 #include <QTableWidget>
 
@@ -17,11 +18,11 @@ public:
     ~MainWindow();
 
 public slots:
-    void importLog();
+    void importCvs();
 
 private:
-
     Ui::MainWindow *ui;
+    CvsImport *cvs;
 };
 
 #endif // MAINWINDOW_H

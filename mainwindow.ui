@@ -185,7 +185,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionImport_Log"/>
+    <addaction name="actionImportCvs"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
@@ -210,7 +210,7 @@
     <string>About ECMapp</string>
    </property>
   </action>
-  <action name="actionImport_Log">
+  <action name="actionImportCvs">
    <property name="text">
     <string>Import CVS</string>
    </property>

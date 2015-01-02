@@ -16,10 +16,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     vetable.cpp \
-    maftable.cpp
+    maftable.cpp \
+    cvsimport.cpp
 
 HEADERS  += mainwindow.h \
     vetable.h \
-    maftable.h
+    maftable.h \
+    cvsimport.h
 
 FORMS    += mainwindow.ui
