@@ -16,7 +16,7 @@ MafTable::~MafTable()
 void MafTable::initMafTable()
 {
     // do something
-    const QStringList mafColums = {"Adj %"};
+    const QStringList mafColumns = {"Adj %"};
 
     const QStringList mafRows = {
         "0(hz)", "50", "100", "150", "200",
@@ -34,7 +34,13 @@ void MafTable::initMafTable()
     for(int i = 0; i < mafRows.length(); i++)
         mafTable->insertRow(i);
 
-    mafTable->setHorizontalHeaderLabels(mafColums);
+    for(int i = 0, j = 0, k = 0; k < mafColumns.length()*mafRows.length(); i++, k++)
+    {
+        QTableWidgetItem *item = new QTableWidgetItem();
+        mafTable->setItem(j, i, item);
+    }
+
+    mafTable->setHorizontalHeaderLabels(mafColumns);
     mafTable->setVerticalHeaderLabels(mafRows);
 
     mafTable->horizontalHeader()->setDefaultSectionSize(50);
