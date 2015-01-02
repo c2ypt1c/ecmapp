@@ -10,10 +10,19 @@ class MafTable : public QTableWidget
 public:
     MafTable(QWidget *parent = 0);
     void initMafTable();
+    void mafCreateActions();
     ~MafTable();
+
+public slots:
+    void mafRightClick(QPoint);
+    void mafCopy();
+    void mafPaste();
 
 private:
     QTableWidget *mafTable;
+
+    QAction *mafCopyAction;
+    QAction *mafPasteAction;
 };
 
 #endif // MAFTABLE_H
