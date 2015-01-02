@@ -16,16 +16,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void initMafTable();
-
-
 public slots:
     void importLog();
 
 private:
 
     Ui::MainWindow *ui;
-    QTableWidget *mafTable;
 };
 
 #endif // MAINWINDOW_H

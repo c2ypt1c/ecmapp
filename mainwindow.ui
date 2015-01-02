@@ -148,7 +148,7 @@
                </layout>
               </item>
               <item alignment="Qt::AlignRight">
-               <widget class="QTableWidget" name="mafTableWidget">
+               <widget class="MafTable" name="mafTableWidget">
                 <property name="enabled">
                  <bool>true</bool>
                 </property>
@@ -222,6 +222,11 @@
    <class>VeTable</class>
    <extends>QTableWidget</extends>
    <header>vetable.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MafTable</class>
+   <extends>QTableWidget</extends>
+   <header>maftable.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
