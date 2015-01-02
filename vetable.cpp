@@ -48,28 +48,21 @@ VeTable::VeTable(QWidget *parent):
 
         QTableWidgetItem *item = new QTableWidgetItem();
         veTable->setItem(j, i, item);
+        veTable->item(j, i)->setTextAlignment(Qt::AlignRight);
     }
 
     veTable->setHorizontalHeaderLabels(veColumns);
     veTable->setVerticalHeaderLabels(veRows);
+    veTable->verticalHeader()->setDefaultAlignment(Qt::AlignRight);
 
     veTable->horizontalHeader()->setDefaultSectionSize(49);
     veTable->verticalHeader()->setDefaultSectionSize(24);
 
-    // row header text align right
-    for(int i = 0; i < veRows.length(); i++)
-    {
-        QTableWidgetItem *row = veTable->verticalHeaderItem(i);
-        row->setTextAlignment(Qt::AlignRight);
-
-        // underline vacuum and psi rows
-        if(i == 0||i == 8)
-        {
-            QFont f = row->font();
-            f.setUnderline(true);
-            row->setFont(f);
-        }
-    }
+    // underline vacuum and psi
+    QFont f;
+    f.setUnderline(true);
+    veTable->verticalHeaderItem(0)->setFont(f);
+    veTable->verticalHeaderItem(8)->setFont(f);
 
     // set up right-click context
     veCreateActions();

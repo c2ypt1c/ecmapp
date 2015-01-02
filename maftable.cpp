@@ -41,14 +41,16 @@ void MafTable::initMafTable()
     for(int i = 0; i < mafRows.length(); i++)
         mafTable->insertRow(i);
 
-    for(int i = 0, j = 0, k = 0; k < mafColumns.length()*mafRows.length(); i++, k++)
+    for(int row = 0; row < mafRows.length(); row++)
     {
         QTableWidgetItem *item = new QTableWidgetItem();
-        mafTable->setItem(j, i, item);
+        mafTable->setItem(row, 0, item);
+        mafTable->item(row, 0)->setTextAlignment(Qt::AlignRight);
     }
 
     mafTable->setHorizontalHeaderLabels(mafColumns);
     mafTable->setVerticalHeaderLabels(mafRows);
+    mafTable->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 
     mafTable->horizontalHeader()->setDefaultSectionSize(50);
     mafTable->verticalHeader()->setDefaultSectionSize(15);
@@ -124,7 +126,7 @@ void MafTable::mafPaste()
         if(item)
         {
             item->setText(clipStrings[row]);
-            item->setTextAlignment(Qt::AlignRight);
+            //item->setTextAlignment(Qt::AlignRight);
         }
     }
 }
