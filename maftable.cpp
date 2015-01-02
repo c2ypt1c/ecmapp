@@ -12,12 +12,23 @@ MafTable::MafTable(QWidget *parent):
     QTableWidget (parent)
 {
     mafTable = this;
+    connect(mafTable, SIGNAL(itemChanged(QTableWidgetItem*)), SLOT(mafUpdate(QTableWidgetItem*)));
+
     initMafTable();
 }
 
 MafTable::~MafTable()
 {
 
+}
+
+void MafTable::mafUpdate(QTableWidgetItem *itm)
+{
+    if(itm->text().toFloat() > 70)
+        itm->setText("70");
+
+    else if(itm->text().toFloat() < -50)
+        itm->setText("-50");
 }
 
 void MafTable::initMafTable()

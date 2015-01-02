@@ -14,6 +14,7 @@ public:
     ~MafTable();
 
 public slots:
+    void mafUpdate(QTableWidgetItem *);
     void mafRightClick(QPoint);
     void mafCopy();
     void mafPaste();
