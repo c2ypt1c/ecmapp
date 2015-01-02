@@ -7,6 +7,7 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QMessageBox>
+#include <QDialogButtonBox>
 
 VeTable::VeTable(QWidget *parent):
     QTableWidget (parent)
@@ -38,17 +39,18 @@ VeTable::VeTable(QWidget *parent):
     for(int i = 0; i < veRows.length(); i++)
         veTable->insertRow(i);
 
-    for(int i = 0, j = 0, k = 0; k < veColumns.length()*veRows.length(); i++, k++)
+    for(int r = 0, c = 0, i = 0; i < veColumns.length()*veRows.length(); c++, i++)
     {
-        if(i == veColumns.length())
+        if(i == veTable->columnCount())
         {
-            i = 0;
-            j++;
+            c = 0;
+            r++;
         }
 
         QTableWidgetItem *item = new QTableWidgetItem();
-        veTable->setItem(j, i, item);
-        veTable->item(j, i)->setTextAlignment(Qt::AlignRight);
+        item->setTextAlignment(Qt::AlignRight);
+
+        veTable->setItem(r, c, item);
     }
 
     veTable->setHorizontalHeaderLabels(veColumns);
@@ -83,7 +85,7 @@ void VeTable::veCreateActions()
     vePasteAction = new QAction("Paste Table", this);
     connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
 
-    veLoadDefaultAction = new QAction("Load A Default VE Table...", this);
+    veLoadDefaultAction = new QAction("Load Default", this);
     connect(veLoadDefaultAction, SIGNAL(triggered()), this, SLOT(veLoadDefault()));
 }
 
@@ -169,21 +171,21 @@ void VeTable::veCopy()
 
     clipboard->clear();
 
-    for(int i = 0, j = 0, k = 0; k < veTable->columnCount()*veTable->rowCount(); i++, k++)
+    for(int r = 0, c = 0, i = 0; i < veTable->columnCount()*veTable->rowCount(); c++, i++)
     {
-        if(i == veTable->columnCount())
+        if(c == veTable->columnCount())
         {
-            i = 0;
-            j++;
+            c = 0;
+            r++;
         }
 
-        QTableWidgetItem *item = veTable->item(j, i);
+        QTableWidgetItem *item = veTable->item(r, c);
 
         if(item)
         {
-            if(i < 1 && j < 1)
+            if(r < 1 && c < 1)
                 clipboard->setText(item->text());
-            else if(i < 1 && j > 0)
+            else if(r > 0 && c < 1)
                 clipboard->setText(clipboard->text() + "\n" + item->text());
             else
                 clipboard->setText(clipboard->text() + "\t" + item->text());
@@ -213,6 +215,7 @@ void VeTable::vePaste()
     for(int i = 0; i < clipRows.length(); i++)
         clipStrings.append(clipRows[i].split("\t"));
 
+    // TODO: this causes problems when copying and pasting our own table
     clipStrings.removeFirst();
     clipStrings.removeLast();
 
@@ -243,8 +246,47 @@ void VeTable::vePaste()
 
 void VeTable::veLoadDefault()
 {
-    // pop to choose between 1g, 2g, or evo
-    qDebug() << "Loading Default";
+    QString vals = "55.0 55.0 57.0 63.5 67.0 66.0 74.0 71.5 75.5 77.5 75.5 75.5 75.5 73.0 72.0 72.0 72.0 72.0 72.0 72.0 72.0 "
+            "55.0 55.0 57.0 63.5 67.0 66.0 74.0 71.5 75.5 77.5 75.5 75.5 75.5 73.0 72.0 72.0 72.0 72.0 72.0 72.0 72.0 "
+            "55.0 55.0 56.5 62.5 66.5 65.0 73.0 70.5 75.0 76.5 75.0 75.0 75.0 72.5 71.0 71.0 71.0 71.0 71.0 71.0 71.0 "
+            "55.0 55.0 56.5 62.5 66.5 65.0 73.0 70.5 75.0 76.5 75.0 75.0 75.0 72.5 71.0 71.0 71.0 71.0 71.0 71.0 71.0 "
+            "55.0 55.0 57.0 63.5 67.0 66.0 74.0 71.5 75.5 77.5 75.5 75.5 75.5 73.0 72.0 72.0 72.0 72.0 72.0 72.0 72.0 "
+            "55.0 55.0 59.0 65.0 69.0 68.0 76.0 73.5 78.0 79.5 78.0 78.0 78.0 75.5 74.0 74.0 74.0 74.0 74.0 74.0 74.0 "
+            "55.0 55.0 62.5 68.5 73.5 72.0 80.0 78.0 82.0 84.0 82.0 82.0 82.0 79.5 78.5 78.5 78.5 78.5 78.5 78.5 78.5 "
+            "55.0 56.5 64.5 71.5 76.0 74.5 83.0 80.5 85.5 87.5 85.5 85.5 85.5 82.5 81.0 81.0 81.0 81.0 81.0 81.0 81.0 "
+            "57.5 59.5 68.0 75.0 80.0 78.5 88.0 85.0 90.0 92.0 90.0 90.0 90.0 87.0 85.5 85.5 85.5 85.5 85.5 85.5 85.5 "
+            "57.5 59.5 68.0 75.0 80.0 78.5 88.0 85.0 90.0 92.0 90.0 90.0 90.0 87.0 85.5 85.5 85.5 85.5 85.5 85.5 85.5 "
+            "59.0 61.5 69.5 77.0 82.0 80.5 90.0 87.0 92.5 94.0 92.5 92.5 92.5 89.5 88.0 88.0 88.0 88.0 88.0 88.0 88.0 "
+            "59.0 61.5 69.5 77.0 82.0 80.5 90.0 87.0 92.5 94.0 92.5 92.5 92.5 89.5 88.0 88.0 88.0 88.0 88.0 88.0 88.0 "
+            "59.0 61.5 69.5 77.0 82.0 80.5 90.0 87.0 92.5 94.0 92.5 92.5 92.5 89.5 88.0 88.0 88.0 88.0 88.0 88.0 88.0 "
+            "59.0 61.5 69.5 77.0 82.0 80.5 90.0 87.0 92.5 94.0 92.5 92.5 92.5 89.5 88.0 88.0 88.0 88.0 88.0 88.0 88.0 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5 "
+            "62.0 64.0 73.5 80.5 86.0 84.5 94.0 91.5 96.5 99.0 96.5 96.5 96.5 93.5 92.5 92.5 92.5 92.5 92.5 92.5 92.5";
+
+    QStringList valList = vals.split(" ");
+
+    for(int r = 0, c = 0, i = 0; i < veTable->columnCount()*veTable->rowCount(); c++, i++)
+    {
+        if(c == veTable->columnCount())
+        {
+            c = 0;
+            r++;
+        }
+
+        QTableWidgetItem *itm = veTable->item(r, c);
+
+        if(itm)
+            itm->setText(valList[i]);
+    }
 }
 
 void VeTable::veRightClick(QPoint p)
