@@ -1,11 +1,12 @@
-#include <QtGui>
+#include "vetable.h"
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QAction>
 #include <QApplication>
 #include <QMenu>
+#include <QClipboard>
+#include <QDebug>
 #include <QMessageBox>
-#include "vetable.h"
 
 VeTable::VeTable(QWidget *parent):
     QTableWidget (parent)

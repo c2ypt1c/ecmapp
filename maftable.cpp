@@ -7,7 +7,6 @@
 #include <QApplication>
 #include <QRegularExpression>
 #include <QMessageBox>
-#include <QtGui>
 
 MafTable::MafTable(QWidget *parent):
     QTableWidget (parent)
