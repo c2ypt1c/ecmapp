@@ -70,7 +70,7 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <item>
-                 <widget class="QLabel" name="label">
+                 <widget class="QLabel" name="veTableLabel">
                   <property name="maximumSize">
                    <size>
                     <width>60</width>
@@ -83,7 +83,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="Line" name="line_2">
+                 <widget class="Line" name="veLine">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -120,10 +120,10 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <item>
-                 <widget class="QLabel" name="label_2">
+                 <widget class="QLabel" name="mafCompLabel">
                   <property name="maximumSize">
                    <size>
-                    <width>70</width>
+                    <width>16777215</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -133,10 +133,10 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="Line" name="line_3">
+                 <widget class="Line" name="mafCompLine">
                   <property name="maximumSize">
                    <size>
-                    <width>100</width>
+                    <width>16777215</width>
                     <height>16777215</height>
                    </size>
                   </property>

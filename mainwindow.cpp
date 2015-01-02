@@ -13,6 +13,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->actionImport_Log, SIGNAL(triggered()), this, SLOT(importLog()));
 
+    QString labelStyle = "QLabel{color: rgba(0,0,100,160); font: bold}";
+    ui->veTableLabel->setStyleSheet(labelStyle);
+    ui->mafCompLabel->setStyleSheet(labelStyle);
+
+
     MainWindow::mafTable = ui->mafTableWidget;
     initMafTable();
 }

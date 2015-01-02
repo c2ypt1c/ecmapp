@@ -12,7 +12,6 @@ VeTable::VeTable(QWidget *parent):
     veTable = this;
 
     connect(veTable, SIGNAL(itemChanged(QTableWidgetItem*)), SLOT(veUpdate(QTableWidgetItem*)));
-    connect(veTable, SIGNAL(cellDoubleClicked(int,int)), SLOT(veEdit(int, int)));
 
     const QStringList veColumns = {
         "0rpm", "500", "1000", "1500",
@@ -78,7 +77,7 @@ VeTable::VeTable(QWidget *parent):
 
 VeTable::~VeTable()
 {
-    delete veTable;
+    //delete veTable;
 }
 
 void VeTable::veCreateActions()
