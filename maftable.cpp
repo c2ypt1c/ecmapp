@@ -1,5 +1,4 @@
 #include "maftable.h"
-#include "mainwindow.h"
 #include <QHeaderView>
 #include <QAction>
 #include <QMenu>
@@ -149,12 +148,20 @@ void MafTable::mafShowAffectedCells()
 
     for(int i = 0; i < mafRawList.length(); i++)
     {
+        float mafRawVal = mafRawList[i].toFloat();
+
         for(int j = 0; j < mafHeaderValues.length(); j++)
         {
-            float val = mafRawList[i].toFloat()/mafHeaderValues[j].toFloat();
-            if(val > 1.0 && val <= 1.055)
+            float mafHeaderVal = mafHeaderValues[j].toFloat();
+            float result = mafRawVal/mafHeaderVal;
+
+            if(result > 1.0 && result <= 1.055)
             {
                 mafTable->item(j,0)->setSelected(true);
+
+                if(mafRawVal >= 3700)
+                    return;
+
                 break;
             }
         }
