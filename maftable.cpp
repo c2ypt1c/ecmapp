@@ -1,4 +1,5 @@
 #include "maftable.h"
+#include "mainwindow.h"
 #include <QHeaderView>
 #include <QAction>
 #include <QMenu>
@@ -136,6 +137,11 @@ void MafTable::mafPaste()
     }
 }
 
+void MafTable::mafShowAffectedCells()
+{
+    qDebug() << "show affected cells!";
+}
+
 void MafTable::mafCreateActions()
 {
     mafCopyAction = new QAction("Copy Table", this);
@@ -145,6 +151,7 @@ void MafTable::mafCreateActions()
     connect(mafPasteAction, SIGNAL(triggered()), this, SLOT(mafPaste()));
 
     mafShowAffectedAction = new QAction("Show Affected Cells", this);
+    connect(mafShowAffectedAction, SIGNAL(triggered()), SLOT(mafShowAffectedCells()));
 }
 
 void MafTable::mafRightClick(QPoint p)
@@ -154,7 +161,13 @@ void MafTable::mafRightClick(QPoint p)
     mafMenu->addAction(mafPasteAction);
     mafMenu->addSeparator();
 
-    mafShowAffectedAction->setDisabled(true);
+    if(fileImported)
+    {
+        mafShowAffectedAction->setEnabled(true);
+    }
+    else
+        mafShowAffectedAction->setDisabled(true);
+
     mafMenu->addAction(mafShowAffectedAction);
 
     mafMenu->popup(mafTable->viewport()->mapToGlobal(p));

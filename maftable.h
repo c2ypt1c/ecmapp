@@ -13,14 +13,19 @@ public:
     void mafCreateActions();
     ~MafTable();
 
+    bool fileImported = false;
+
 public slots:
     void mafUpdate(QTableWidgetItem *);
     void mafRightClick(QPoint);
     void mafCopy();
     void mafPaste();
+    void mafShowAffectedCells();
+
 
 private:
     QTableWidget *mafTable;
+
 
     QAction *mafCopyAction;
     QAction *mafPasteAction;

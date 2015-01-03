@@ -76,7 +76,9 @@ void MainWindow::setMode(QString line)
 
     if(match.hasMatch())
     {
+        // set file imported flag
         fileImported = true;
+        ui->mafTableWidget->fileImported = true;
 
         // if MAFRaw and VE are found
         if(match.captured(2) != "")
