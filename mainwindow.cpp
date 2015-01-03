@@ -25,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // disable tables until file loaded
     ui->veTableWidget->setDisabled(true);
     ui->mafTableWidget->setDisabled(true);
+
+    airflowMode = 0;
+    fileImported = false;
 }
 
 MainWindow::~MainWindow()
@@ -40,8 +43,6 @@ void MainWindow::importCvs()
     if(importDialog.exec())
     {
         QStringList filenames = importDialog.selectedFiles();
-        qDebug() << filenames;
-
         parseCsv(filenames[0]);
     }
 }
@@ -56,13 +57,17 @@ void MainWindow::parseCsv(QString n)
     else
         qDebug() << "file opened!";
 
-    QByteArray l = csvFile->readLine();
-    qDebug() << l;
+    QString l = csvFile->readLine();
 
     setMode(l);
+    QStringList lineSplit = l.split(",");
+    int afIndex = findAirflowIndex(lineSplit);
+    int wbFactorIndex = findWBFactorIndex(lineSplit);
+
+    parseData(csvFile, afIndex, wbFactorIndex);
 }
 
-// determine which mode based on exported log items
+// determine which mode based on first line in csv file
 void MainWindow::setMode(QString line)
 {
     QRegularExpressionMatch match;
@@ -71,6 +76,8 @@ void MainWindow::setMode(QString line)
 
     if(match.hasMatch())
     {
+        fileImported = true;
+
         // if MAFRaw and VE are found
         if(match.captured(2) != "")
         {
@@ -87,18 +94,18 @@ void MainWindow::setMode(QString line)
                 mafMode();
         }
 
-        // if MAFRaw only
-        else if(match.captured(1) == "MAFRaw")
-        {
-            qDebug() << "mafraw detected";
-            mafMode();
-        }
-
         // if VE only
         else if(match.captured(1) == "VE")
         {
             qDebug() << "ve detected";
             sdMode();
+        }
+
+        // if MAFRaw only
+        else if(match.captured(1) == "MAFRaw")
+        {
+            qDebug() << "mafraw detected";
+            mafMode();
         }
     }
 
@@ -108,14 +115,99 @@ void MainWindow::setMode(QString line)
 
 void MainWindow::sdMode()
 {
+    airflowMode = 1;
     ui->veTableWidget->setEnabled(true);
     ui->mafTableWidget->setDisabled(true);
     ui->mafTableWidget->clearSelection();
+
+    if(fileImported)
+    {
+        ui->mafButton->setDisabled(true);
+        ui->veButton->setDisabled(true);
+    }
 }
 
 void MainWindow::mafMode()
 {
+    airflowMode = 2;
     ui->mafTableWidget->setEnabled(true);
     ui->veTableWidget->setDisabled(true);
     ui->veTableWidget->clearSelection();
+
+    if(fileImported)
+    {
+        ui->veButton->setDisabled(true);
+        ui->mafButton->setDisabled(true);
+    }
+}
+
+int MainWindow::findAirflowIndex(QStringList fields)
+{
+    qDebug() << fields;
+    if(airflowMode == 1)
+    {
+        for(int i = 0; i < fields.length(); i++)
+        {
+            if(fields[i].contains("VE"))
+                return i;
+        }
+    }
+
+    else if(airflowMode == 2)
+    {
+        for(int i = 0; i < fields.length(); i++)
+        {
+            if(fields[i].contains("MAFRaw"))
+                return i;
+        }
+    }
+
+    return 0;
+}
+
+int MainWindow::findWBFactorIndex(QStringList fields)
+{
+    for(int i = 0; i < fields.length(); i++)
+    {
+        if(fields[i].contains("WBFactor"))
+            return i;
+    }
+
+    return 0;
+}
+
+void MainWindow::parseData(QFile *f, int afIndex, int wbfIndex)
+{
+    while(!f->atEnd())
+    {
+        QString line = f->readLine();
+        QStringList lineSplit = line.split(",");
+
+        if(airflowMode == 1)
+            VEList.append(lineSplit[afIndex]);
+
+        else if(airflowMode == 2)
+            MAFRawList.append(lineSplit[afIndex]);
+
+        WBFactorList.append(lineSplit[wbfIndex]);
+    }
+
+    qDebug() << "VEList: " << VEList;
+    qDebug() << "MAFRawList: " << MAFRawList;
+    qDebug() << "WBFactorList: " << WBFactorList;
+}
+
+QStringList MainWindow::getVEList()
+{
+    return VEList;
+}
+
+QStringList MainWindow::getMAFRawList()
+{
+    return MAFRawList;
+}
+
+QStringList MainWindow::getWBFactorList()
+{
+    return WBFactorList;
 }

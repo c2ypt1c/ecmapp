@@ -24,6 +24,7 @@ private:
 
     QAction *mafCopyAction;
     QAction *mafPasteAction;
+    QAction *mafShowAffectedAction;
 };
 
 #endif // MAFTABLE_H

@@ -72,14 +72,7 @@ void MafTable::initMafTable()
     connect(mafTable, SIGNAL(customContextMenuRequested(QPoint)),SLOT(mafRightClick(QPoint)));
 }
 
-void MafTable::mafCreateActions()
-{
-    mafCopyAction = new QAction("Copy Table", this);
-    connect(mafCopyAction, SIGNAL(triggered()), this, SLOT(mafCopy()));
 
-    mafPasteAction = new QAction("Paste Table", this);
-    connect(mafPasteAction, SIGNAL(triggered()), this, SLOT(mafPaste()));
-}
 
 void MafTable::mafCopy()
 {
@@ -103,7 +96,7 @@ void MafTable::mafPaste()
     QString clipText = clipboard->text();
 
     // input validation
-    QRegularExpressionMatch m = QRegularExpression("([0-9]+\\.[0-9]+[\\t\\n])+").match(clipText);
+    QRegularExpressionMatch m = QRegularExpression("(-?[0-9]+\\.[0-9]+[\\t\\n])+").match(clipText);
     if(!m.hasMatch())
     {
         QMessageBox::warning(NULL, "", "Copy MAF Comp table from ECMLink first");
@@ -117,7 +110,7 @@ void MafTable::mafPaste()
 
     for(int i = 0; i < clipRows.length(); i++)
     {
-        m = QRegularExpression("[0-9]+\\t([0-9]+(\\.[0-9]+)?)").match(clipRows[i]);
+        m = QRegularExpression("[0-9]+\\t(-?[0-9]+(\\.[0-9]+)?)").match(clipRows[i]);
 
         if(m.hasMatch())
             clipStrings.append(m.captured(1));
@@ -143,10 +136,26 @@ void MafTable::mafPaste()
     }
 }
 
+void MafTable::mafCreateActions()
+{
+    mafCopyAction = new QAction("Copy Table", this);
+    connect(mafCopyAction, SIGNAL(triggered()), this, SLOT(mafCopy()));
+
+    mafPasteAction = new QAction("Paste Table", this);
+    connect(mafPasteAction, SIGNAL(triggered()), this, SLOT(mafPaste()));
+
+    mafShowAffectedAction = new QAction("Show Affected Cells", this);
+}
+
 void MafTable::mafRightClick(QPoint p)
 {
     QMenu *mafMenu=new QMenu(this);
     mafMenu->addAction(mafCopyAction);
     mafMenu->addAction(mafPasteAction);
+    mafMenu->addSeparator();
+
+    mafShowAffectedAction->setDisabled(true);
+    mafMenu->addAction(mafShowAffectedAction);
+
     mafMenu->popup(mafTable->viewport()->mapToGlobal(p));
 }
