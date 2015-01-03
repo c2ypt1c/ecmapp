@@ -140,6 +140,25 @@ void MafTable::mafPaste()
 void MafTable::mafShowAffectedCells()
 {
     qDebug() << "show affected cells!";
+
+    mafTable->clearSelection();
+
+    QStringList mafHeaderValues;
+    for(int i = 0; i < mafTable->verticalHeader()->count(); i++)
+        mafHeaderValues.append(mafTable->verticalHeaderItem(i)->text());
+
+    for(int i = 0; i < mafRawList.length(); i++)
+    {
+        for(int j = 0; j < mafHeaderValues.length(); j++)
+        {
+            float val = mafRawList[i].toFloat()/mafHeaderValues[j].toFloat();
+            if(val > 1.0 && val <= 1.055)
+            {
+                mafTable->item(j,0)->setSelected(true);
+                break;
+            }
+        }
+    }
 }
 
 void MafTable::mafCreateActions()
