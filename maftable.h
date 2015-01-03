@@ -10,12 +10,14 @@ class MafTable : public QTableWidget
 public:
     MafTable(QWidget *parent = 0);
     void initMafTable();
-    void mafCreateActions();
     ~MafTable();
+    void mafCreateActions();
+    void calcAffectedCells();
 
     bool fileImported = false;
-    QStringList mafRawList;
-    QStringList wbfList;
+    QList<float> mafRawList;
+    QList<float> wbfList;
+    QList<int> affectedRows;
 
 public slots:
     void mafUpdate(QTableWidgetItem *);
@@ -23,6 +25,7 @@ public slots:
     void mafCopy();
     void mafPaste();
     void mafShowAffectedCells();
+    void mafApplyCorrections();
 
 
 private:
@@ -31,6 +34,7 @@ private:
     QAction *mafCopyAction;
     QAction *mafPasteAction;
     QAction *mafShowAffectedAction;
+    QAction *mafApplyCorrectionsAction;
 };
 
 #endif // MAFTABLE_H

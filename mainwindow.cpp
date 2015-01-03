@@ -59,6 +59,19 @@ void MainWindow::parseCsv(QString n)
 
     QString l = csvFile->readLine();
 
+    // ensure required fields are present
+    if(!l.contains("WBFactor"))
+    {
+        QMessageBox::warning(this, NULL, "WBFactor not found");
+        return;
+    }
+
+    if(!l.contains(QRegularExpression("VE|MAFRaw")))
+    {
+        QMessageBox::warning(this, NULL, "VE or MAFRaw not found");
+        return;
+    }
+
     setMode(l);
     QStringList lineSplit = l.split(",");
     int afIndex = findAirflowIndex(lineSplit);
@@ -70,9 +83,7 @@ void MainWindow::parseCsv(QString n)
 // determine which mode based on first line in csv file
 void MainWindow::setMode(QString line)
 {
-    QRegularExpressionMatch match;
-    QRegularExpression re("((MAFRaw.*VE|VE.*MAFRaw)|(MAFRaw|VE))");
-    match = re.match(line);
+    QRegularExpressionMatch match = QRegularExpression("((MAFRaw.*VE|VE.*MAFRaw)|(MAFRaw|VE))").match(line);
 
     if(match.hasMatch())
     {
@@ -82,7 +93,7 @@ void MainWindow::setMode(QString line)
         if(match.captured(2) != "")
         {
             QMessageBox msgBox;
-            msgBox.setText("VE and MAFRaw detected, choose which mode to operate in");
+            msgBox.setText("Log contains Both VE and MAFRaw values.\nSelect which mode to operate in.");
             QPushButton *speedDensityButton = msgBox.addButton("Speed Density", QMessageBox::ActionRole);
             QPushButton *massAirFlowButton = msgBox.addButton("Mass Air Flow", QMessageBox::ActionRole);
 
@@ -182,9 +193,9 @@ int MainWindow::findWBFactorIndex(QStringList fields)
 
 void MainWindow::parseData(QFile *f, int afIndex, int wbfIndex)
 {
-    QStringList mafRawList;
-    QStringList veList;
-    QStringList wbfList;
+    QList<float> mafRawList;
+    QList<float> veList;
+    QList<float> wbfList;
 
     while(!f->atEnd())
     {
@@ -192,12 +203,12 @@ void MainWindow::parseData(QFile *f, int afIndex, int wbfIndex)
         QStringList lineSplit = line.split(",");
 
         if(airflowMode == 1)
-            veList.append(lineSplit[afIndex]);
+            veList.append(lineSplit[afIndex].toFloat());
 
         else if(airflowMode == 2)
-            mafRawList.append(lineSplit[afIndex]);
+            mafRawList.append(lineSplit[afIndex].toFloat());
 
-        wbfList.append(lineSplit[wbfIndex]);
+        wbfList.append(lineSplit[wbfIndex].toFloat());
     }
 
     if(airflowMode == 1)

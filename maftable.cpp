@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QRegularExpression>
 #include <QMessageBox>
+//#include <QtGlobal>
 
 MafTable::MafTable(QWidget *parent):
     QTableWidget (parent)
@@ -129,36 +130,54 @@ void MafTable::mafPaste()
         QTableWidgetItem *item = mafTable->item(row, 0);
 
         if(item)
-        {
             item->setText(clipStrings[row]);
-            //item->setTextAlignment(Qt::AlignRight);
-        }
+    }
+}
+
+void MafTable::calcAffectedCells()
+{
+    // remove old data
+    affectedRows.clear();
+
+    // populates MafTable::affectedRows to correspond with wbfactor entries
+    for(int i = 0, rawVal = 0, rowVal = 0; i < mafRawList.length(); i++)
+    {
+        rawVal = mafRawList[i];
+
+        // qRound does the dirty work for us
+        rowVal = qRound(mafRawList[i]/100);
+        affectedRows.append(rowVal*100);
     }
 }
 
 void MafTable::mafShowAffectedCells()
 {
-    qDebug() << "show affected cells!";
-
     mafTable->clearSelection();
+    calcAffectedCells();
 
-    QStringList mafHeaderValues;
-    for(int i = 0; i < mafTable->verticalHeader()->count(); i++)
-        mafHeaderValues.append(mafTable->verticalHeaderItem(i)->text());
-
-    for(int i = 0; i < mafRawList.length(); i++)
+    // remove duplicate entries from affected rows
+    QList<int> trimmedRowList;
+    for(int i = 0, aVal = 0; i < affectedRows.count(); i++)
     {
-        float mafRawVal = mafRawList[i].toFloat();
+        aVal = affectedRows[i];
 
-        for(int j = 0; j < mafHeaderValues.length(); j++)
-        {
-            float mafHeaderVal = mafHeaderValues[j].toFloat();
-            float result = mafRawVal/mafHeaderVal;
-
-            if(result > 1.0 && result <= 1.055)
-                mafTable->item(j,0)->setSelected(true);
-        }
+        if(!trimmedRowList.contains(aVal) && aVal >= 300 && aVal <= 3600)
+            trimmedRowList.append(aVal);
     }
+
+    // highlight affected cells
+    QString text;
+    for(int i = 0; i < mafTable->rowCount(); i++)
+    {
+        text = mafTable->verticalHeaderItem(i)->text();
+        if(trimmedRowList.contains(text.toInt()))
+            mafTable->item(i, 0)->setSelected(true);
+    }
+}
+
+void MafTable::mafApplyCorrections()
+{
+    qDebug() << wbfList;
 }
 
 void MafTable::mafCreateActions()
@@ -171,6 +190,9 @@ void MafTable::mafCreateActions()
 
     mafShowAffectedAction = new QAction("Show Affected Cells", this);
     connect(mafShowAffectedAction, SIGNAL(triggered()), SLOT(mafShowAffectedCells()));
+
+    mafApplyCorrectionsAction = new QAction("Apply Corrections", this);
+    connect(mafApplyCorrectionsAction, SIGNAL(triggered()), SLOT(mafApplyCorrections()));
 }
 
 void MafTable::mafRightClick(QPoint p)
@@ -183,11 +205,16 @@ void MafTable::mafRightClick(QPoint p)
     if(fileImported)
     {
         mafShowAffectedAction->setEnabled(true);
+        mafApplyCorrectionsAction->setEnabled(true);
     }
     else
+    {
         mafShowAffectedAction->setDisabled(true);
+        mafApplyCorrectionsAction->setDisabled(true);
+    }
 
     mafMenu->addAction(mafShowAffectedAction);
+    mafMenu->addAction(mafApplyCorrectionsAction);
 
     mafMenu->popup(mafTable->viewport()->mapToGlobal(p));
 }

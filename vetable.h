@@ -14,8 +14,8 @@ public:
     void initVETable();
     void veCreateActions();
 
-    QStringList veList;
-    QStringList wbfList;
+    QList<float> veList;
+    QList<float> wbfList;
 
 public slots:
     void veUpdate(QTableWidgetItem *);
