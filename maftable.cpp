@@ -156,14 +156,7 @@ void MafTable::mafShowAffectedCells()
             float result = mafRawVal/mafHeaderVal;
 
             if(result > 1.0 && result <= 1.055)
-            {
                 mafTable->item(j,0)->setSelected(true);
-
-                if(mafRawVal >= 3700)
-                    return;
-
-                break;
-            }
         }
     }
 }
