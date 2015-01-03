@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>740</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -70,10 +70,10 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <item>
-                 <widget class="QLabel" name="veTableLabel">
+                 <widget class="QPushButton" name="veButton">
                   <property name="maximumSize">
                    <size>
-                    <width>65</width>
+                    <width>70</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -120,13 +120,7 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <item>
-                 <widget class="QLabel" name="mafCompLabel">
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
+                 <widget class="QPushButton" name="mafButton">
                   <property name="text">
                    <string>MAF Comp</string>
                   </property>

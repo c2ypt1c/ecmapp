@@ -19,11 +19,11 @@ public:
 
     void parseCsv(QString);
     void setMode(QString);
-    void sdMode();
-    void mafMode();
 
 public slots:
     void importCvs();
+    void sdMode();
+    void mafMode();
 
 private:
     Ui::MainWindow *ui;
