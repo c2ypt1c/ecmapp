@@ -22,9 +22,6 @@ public:
     int findAirflowIndex(QStringList);
     int findWBFactorIndex(QStringList);
     void parseData(QFile *, int, int);
-    QStringList getVEList();
-    QStringList getMAFRawList();
-    QStringList getWBFactorList();
 
 public slots:
     void importCvs();
@@ -37,9 +34,6 @@ private:
 
     int airflowMode;
     bool fileImported;
-    QStringList MAFRawList;
-    QStringList VEList;
-    QStringList WBFactorList;
 };
 
 #endif // MAINWINDOW_H

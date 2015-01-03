@@ -14,6 +14,8 @@ public:
     ~MafTable();
 
     bool fileImported = false;
+    QStringList mafRawList;
+    QStringList wbfList;
 
 public slots:
     void mafUpdate(QTableWidgetItem *);
@@ -25,7 +27,6 @@ public slots:
 
 private:
     QTableWidget *mafTable;
-
 
     QAction *mafCopyAction;
     QAction *mafPasteAction;

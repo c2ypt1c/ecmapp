@@ -14,6 +14,9 @@ public:
     void initVETable();
     void veCreateActions();
 
+    QStringList veList;
+    QStringList wbfList;
+
 public slots:
     void veUpdate(QTableWidgetItem *);
     void veRightClick(QPoint);

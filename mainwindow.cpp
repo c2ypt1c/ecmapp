@@ -76,9 +76,7 @@ void MainWindow::setMode(QString line)
 
     if(match.hasMatch())
     {
-        // set file imported flag
         fileImported = true;
-        ui->mafTableWidget->fileImported = true;
 
         // if MAFRaw and VE are found
         if(match.captured(2) != "")
@@ -93,7 +91,10 @@ void MainWindow::setMode(QString line)
                 sdMode();
 
             else if (msgBox.clickedButton() == (QAbstractButton*)massAirFlowButton)
+            {
+                ui->mafTableWidget->fileImported = true;
                 mafMode();
+            }
         }
 
         // if VE only
@@ -107,6 +108,7 @@ void MainWindow::setMode(QString line)
         else if(match.captured(1) == "MAFRaw")
         {
             qDebug() << "mafraw detected";
+            ui->mafTableWidget->fileImported = true;
             mafMode();
         }
     }
@@ -180,36 +182,32 @@ int MainWindow::findWBFactorIndex(QStringList fields)
 
 void MainWindow::parseData(QFile *f, int afIndex, int wbfIndex)
 {
+    QStringList mafRawList;
+    QStringList veList;
+    QStringList wbfList;
+
     while(!f->atEnd())
     {
         QString line = f->readLine();
         QStringList lineSplit = line.split(",");
 
         if(airflowMode == 1)
-            VEList.append(lineSplit[afIndex]);
+            veList.append(lineSplit[afIndex]);
 
         else if(airflowMode == 2)
-            MAFRawList.append(lineSplit[afIndex]);
+            mafRawList.append(lineSplit[afIndex]);
 
-        WBFactorList.append(lineSplit[wbfIndex]);
+        wbfList.append(lineSplit[wbfIndex]);
     }
 
-    qDebug() << "VEList: " << VEList;
-    qDebug() << "MAFRawList: " << MAFRawList;
-    qDebug() << "WBFactorList: " << WBFactorList;
-}
-
-QStringList MainWindow::getVEList()
-{
-    return VEList;
-}
-
-QStringList MainWindow::getMAFRawList()
-{
-    return MAFRawList;
-}
-
-QStringList MainWindow::getWBFactorList()
-{
-    return WBFactorList;
+    if(airflowMode == 1)
+    {
+        ui->veTableWidget->veList = veList;
+        ui->veTableWidget->wbfList = wbfList;
+    }
+    else if(airflowMode == 2)
+    {
+        ui->mafTableWidget->mafRawList = mafRawList;
+        ui->mafTableWidget->wbfList = wbfList;
+    }
 }
