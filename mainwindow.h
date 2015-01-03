@@ -18,6 +18,9 @@ public:
     ~MainWindow();
 
     void parseCsv(QString);
+    void setMode(QString);
+    void sdMode();
+    void mafMode();
 
 public slots:
     void importCvs();
