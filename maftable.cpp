@@ -177,7 +177,74 @@ void MafTable::mafShowAffectedCells()
 
 void MafTable::mafApplyCorrections()
 {
-    qDebug() << wbfList;
+    // TODO: use slot when file is imported
+    calcAffectedCells();
+
+
+    if(affectedRows.count() != wbfList.count())
+    {
+        qDebug() << "count mismatch";
+        return;
+    }
+
+    // trimmed affected rows
+    QList<int> trAffectedRows;
+
+    QList<int> avgList;
+    avgList.append(0);
+
+    // determine denominator for average
+    for(int i = 0, aVal; i < affectedRows.count(); i++)
+    {
+        aVal = affectedRows[i];
+
+        if(trAffectedRows.contains(aVal))
+            avgList[trAffectedRows.count()] += 1;
+
+        else
+        {
+            trAffectedRows.append(aVal);
+            avgList.append(1);
+        }
+    }
+
+    // remove first 0 to match index of trimmed list
+    avgList.pop_front();
+
+    // calculate average and store in correctedList
+    QList<float> correctedList;
+    for(int i = 0, wbfIndex = 0; i < avgList.count(); i++)
+    {
+        float correction = 0.0;
+        int j = 0;
+        while(j < avgList[i])
+        {
+            correction += wbfList[wbfIndex];
+            j++;
+            wbfIndex++;
+        }
+
+        correctedList.append(correction/j);
+    }
+
+    // set cell to suggested correction
+    for(int i = 0; i < trAffectedRows.count(); i++)
+    {
+        qDebug() << trAffectedRows[i] << ": " << correctedList[i];
+
+        // TODO: this seems inefficient
+        for(int j = 0; j < mafTable->rowCount(); j++)
+        {
+            QTableWidgetItem *item = mafTable->verticalHeaderItem(j);
+            if(trAffectedRows[i] == item->text().toFloat())
+            {
+                float val = mafTable->item(j, 0)->text().toFloat();
+                val = val + correctedList[i];
+                mafTable->item(j, 0)->setText(QString::number(val, 'f', 2));
+                mafShowAffectedCells();
+            }
+        }
+    }
 }
 
 void MafTable::mafCreateActions()
