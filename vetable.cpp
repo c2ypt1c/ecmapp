@@ -79,18 +79,6 @@ VeTable::~VeTable()
     //delete veTable;
 }
 
-void VeTable::veCreateActions()
-{
-    veCopyAction = new QAction("Copy Table", this);
-    connect(veCopyAction, SIGNAL(triggered()), this, SLOT(veCopy()));
-
-    vePasteAction = new QAction("Paste Table", this);
-    connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
-
-    veLoadDefaultAction = new QAction("Load Default", this);
-    connect(veLoadDefaultAction, SIGNAL(triggered()), this, SLOT(veLoadDefault()));
-}
-
 void VeTable::veUpdate(QTableWidgetItem *itm)
 {
     QString t = itm->text();
@@ -291,11 +279,33 @@ void VeTable::veLoadDefault()
     }
 }
 
+void VeTable::showAffectedCells()
+{
+    qDebug() << veList;
+}
+
+void VeTable::veCreateActions()
+{
+    veCopyAction = new QAction("Copy Table", this);
+    connect(veCopyAction, SIGNAL(triggered()), this, SLOT(veCopy()));
+
+    vePasteAction = new QAction("Paste Table", this);
+    connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
+
+    veLoadDefaultAction = new QAction("Load Default", this);
+    connect(veLoadDefaultAction, SIGNAL(triggered()), this, SLOT(veLoadDefault()));
+
+    veShowAffectedAction = new QAction("Show Affected Cells", this);
+    connect(veShowAffectedAction, SIGNAL(triggered()), SLOT(showAffectedCells()));
+}
+
 void VeTable::veRightClick(QPoint p)
 {
     QMenu *veMenu=new QMenu(this);
     veMenu->addAction(veCopyAction);
     veMenu->addAction(vePasteAction);
+    veMenu->addSeparator();
+    veMenu->addAction(veShowAffectedAction);
     veMenu->addSeparator();
     veMenu->addAction(veLoadDefaultAction);
     veMenu->popup(veTable->viewport()->mapToGlobal(p));

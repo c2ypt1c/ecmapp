@@ -23,6 +23,7 @@ public slots:
     void veCopy();
     void vePaste();
     void veLoadDefault();
+    void showAffectedCells();
 
 private:
     QTableWidget *veTable;
@@ -32,6 +33,7 @@ private:
     QAction *veCopyAction;
     QAction *vePasteAction;
     QAction *veLoadDefaultAction;
+    QAction *veShowAffectedAction;
 };
 
 #endif // VETABLE_H
