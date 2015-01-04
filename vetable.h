@@ -15,6 +15,8 @@ public:
     void veCreateActions();
 
     QList<float> veList;
+    QList<float> rpmList;
+    QList<float> psiList;
     QList<float> wbfList;
 
 public slots:

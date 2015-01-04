@@ -281,7 +281,9 @@ void VeTable::veLoadDefault()
 
 void VeTable::showAffectedCells()
 {
-    qDebug() << veList;
+    qDebug() << "rpmList: " << rpmList;
+    qDebug() << "psiList: " << psiList;
+    qDebug() << "veList: " << veList;
 }
 
 void VeTable::veCreateActions()

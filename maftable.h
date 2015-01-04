@@ -14,7 +14,6 @@ public:
     void mafCreateActions();
     void calcAffectedCells();
 
-    bool fileImported = false;
     QList<float> mafRawList;
     QList<float> wbfList;
     QList<int> affectedRows;

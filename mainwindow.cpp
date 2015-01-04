@@ -13,10 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-    connect(ui->actionImportCvs, SIGNAL(triggered()), this, SLOT(importCvs()));
-
-    connect(ui->veButton, SIGNAL(clicked()), SLOT(sdMode()));
-    connect(ui->mafButton, SIGNAL(clicked()), SLOT(mafMode()));
+    connect(ui->actionImportCvs, SIGNAL(triggered()), this, SLOT(importCsv()));
 
     QString labelStyle = "QPushButton{color: rgba(0,0,100,160); font: bold}";
     ui->veButton->setStyleSheet(labelStyle);
@@ -35,7 +32,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::importCvs()
+void MainWindow::importCsv()
 {
     QFileDialog importDialog(this);
     importDialog.setNameFilter("ECMLink Export (*.csv)");
@@ -49,83 +46,93 @@ void MainWindow::importCvs()
 
 void MainWindow::parseCsv(QString n)
 {
-    csvFile = new QFile(n);
+    // field indecies
+    int ve, rpm, psi;
+    int mafraw;
 
+    QFile *csvFile = new QFile(n);
+
+    // if file can't be opened, bail out
     if(!csvFile->open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    else
-        qDebug() << "file opened!";
+    // read header line and set mode
+    QString l = csvFile->readLine().trimmed();
+    setMode();
 
-    QString l = csvFile->readLine();
+    QStringList fields = l.split(",");
 
-    // ensure required fields are present
-    if(!l.contains("WBFactor"))
+    // if wbfactor data not found, bail out
+    int wbfactor = fields.indexOf(QRegularExpression("^WBFactor.*"));
+    if(wbfactor == -1)
     {
         QMessageBox::warning(this, NULL, "WBFactor not found");
         return;
     }
 
-    if(!l.contains(QRegularExpression("VE|MAFRaw")))
+    if(airflowMode == 1)
     {
-        QMessageBox::warning(this, NULL, "VE or MAFRaw not found");
-        return;
+        ve = fields.indexOf(QRegularExpression("^VE.*"));
+        rpm = fields.indexOf(QRegularExpression("^RPM.*"));
+        psi = fields.indexOf(QRegularExpression(".*-inHg/\\+psi.*"));
+
+        // if sd data not found, bail out
+        if(ve == -1||rpm == -1||psi == -1)
+        {
+            QMessageBox::warning(this, NULL, "Speed Density requires RPM, Boost, and VE data");
+            return;
+        }
     }
 
-    setMode(l);
-    QStringList lineSplit = l.split(",");
-    int afIndex = findAirflowIndex(lineSplit);
-    int wbFactorIndex = findWBFactorIndex(lineSplit);
+    else if(airflowMode == 2)
+    {
+        mafraw = fields.indexOf(QRegularExpression("^MAFRaw.*"));
 
-    parseData(csvFile, afIndex, wbFactorIndex);
+        // if mafraw data not found, bail out
+        if(mafraw == -1)
+        {
+            QMessageBox::warning(this, NULL, "Mass Airflow requires MAFRaw data");
+            return;
+        }
+    }
+
+    // read file line-by-line
+    while(!csvFile->atEnd())
+    {
+        QString line = csvFile->readLine().trimmed();
+        QStringList lineSplit = line.split(",");
+
+        // if sd mode, fill ve table lists
+        if(airflowMode == 1)
+        {
+            ui->veTableWidget->veList.append(lineSplit[ve].toFloat());
+            ui->veTableWidget->rpmList.append(lineSplit[rpm].toFloat());
+            ui->veTableWidget->psiList.append(lineSplit[psi].toFloat());
+            ui->veTableWidget->wbfList.append(lineSplit[wbfactor].toFloat());
+        }
+
+        // if maf mode, fill maf table lists
+        else if(airflowMode == 2)
+        {
+            ui->mafTableWidget->mafRawList.append(lineSplit[mafraw].toFloat());
+            ui->mafTableWidget->wbfList.append(lineSplit[wbfactor].toFloat());
+        }
+    }
 }
 
-// determine which mode based on first line in csv file
-void MainWindow::setMode(QString line)
+void MainWindow::setMode()
 {
-    QRegularExpressionMatch match = QRegularExpression("((MAFRaw.*VE|VE.*MAFRaw)|(MAFRaw|VE))").match(line);
+    QMessageBox msgBox;
+    msgBox.setText("Select operation mode");
+    QPushButton *speedDensityButton = msgBox.addButton("Speed Density", QMessageBox::ActionRole);
+    QPushButton *massAirFlowButton = msgBox.addButton("Mass Air Flow", QMessageBox::ActionRole);
+    msgBox.exec();
 
-    if(match.hasMatch())
-    {
-        fileImported = true;
+    if (msgBox.clickedButton() == (QAbstractButton*)speedDensityButton)
+        sdMode();
 
-        // if MAFRaw and VE are found
-        if(match.captured(2) != "")
-        {
-            QMessageBox msgBox;
-            msgBox.setText("Log contains Both VE and MAFRaw values.\nSelect which mode to operate in.");
-            QPushButton *speedDensityButton = msgBox.addButton("Speed Density", QMessageBox::ActionRole);
-            QPushButton *massAirFlowButton = msgBox.addButton("Mass Air Flow", QMessageBox::ActionRole);
-
-            msgBox.exec();
-            if (msgBox.clickedButton() == (QAbstractButton*)speedDensityButton)
-                sdMode();
-
-            else if (msgBox.clickedButton() == (QAbstractButton*)massAirFlowButton)
-            {
-                ui->mafTableWidget->fileImported = true;
-                mafMode();
-            }
-        }
-
-        // if VE only
-        else if(match.captured(1) == "VE")
-        {
-            qDebug() << "ve detected";
-            sdMode();
-        }
-
-        // if MAFRaw only
-        else if(match.captured(1) == "MAFRaw")
-        {
-            qDebug() << "mafraw detected";
-            ui->mafTableWidget->fileImported = true;
-            mafMode();
-        }
-    }
-
-    else
-        qDebug() << "no match";
+    else if (msgBox.clickedButton() == (QAbstractButton*)massAirFlowButton)
+        mafMode();
 }
 
 void MainWindow::sdMode()
@@ -134,12 +141,6 @@ void MainWindow::sdMode()
     ui->veTableWidget->setEnabled(true);
     ui->mafTableWidget->setDisabled(true);
     ui->mafTableWidget->clearSelection();
-
-    if(fileImported)
-    {
-        ui->mafButton->setDisabled(true);
-        ui->veButton->setDisabled(true);
-    }
 }
 
 void MainWindow::mafMode()
@@ -148,77 +149,4 @@ void MainWindow::mafMode()
     ui->mafTableWidget->setEnabled(true);
     ui->veTableWidget->setDisabled(true);
     ui->veTableWidget->clearSelection();
-
-    if(fileImported)
-    {
-        ui->veButton->setDisabled(true);
-        ui->mafButton->setDisabled(true);
-    }
-}
-
-int MainWindow::findAirflowIndex(QStringList fields)
-{
-    qDebug() << fields;
-    if(airflowMode == 1)
-    {
-        for(int i = 0; i < fields.length(); i++)
-        {
-            if(fields[i].contains("VE"))
-                return i;
-        }
-    }
-
-    else if(airflowMode == 2)
-    {
-        for(int i = 0; i < fields.length(); i++)
-        {
-            if(fields[i].contains("MAFRaw"))
-                return i;
-        }
-    }
-
-    return 0;
-}
-
-int MainWindow::findWBFactorIndex(QStringList fields)
-{
-    for(int i = 0; i < fields.length(); i++)
-    {
-        if(fields[i].contains("WBFactor"))
-            return i;
-    }
-
-    return 0;
-}
-
-void MainWindow::parseData(QFile *f, int afIndex, int wbfIndex)
-{
-    QList<float> mafRawList;
-    QList<float> veList;
-    QList<float> wbfList;
-
-    while(!f->atEnd())
-    {
-        QString line = f->readLine();
-        QStringList lineSplit = line.split(",");
-
-        if(airflowMode == 1)
-            veList.append(lineSplit[afIndex].toFloat());
-
-        else if(airflowMode == 2)
-            mafRawList.append(lineSplit[afIndex].toFloat());
-
-        wbfList.append(lineSplit[wbfIndex].toFloat());
-    }
-
-    if(airflowMode == 1)
-    {
-        ui->veTableWidget->veList = veList;
-        ui->veTableWidget->wbfList = wbfList;
-    }
-    else if(airflowMode == 2)
-    {
-        ui->mafTableWidget->mafRawList = mafRawList;
-        ui->mafTableWidget->wbfList = wbfList;
-    }
 }

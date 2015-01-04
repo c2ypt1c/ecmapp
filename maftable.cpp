@@ -265,18 +265,6 @@ void MafTable::mafRightClick(QPoint p)
     mafMenu->addAction(mafCopyAction);
     mafMenu->addAction(mafPasteAction);
     mafMenu->addSeparator();
-
-    if(fileImported)
-    {
-        mafShowAffectedAction->setEnabled(true);
-        mafApplyCorrectionsAction->setEnabled(true);
-    }
-    else
-    {
-        mafShowAffectedAction->setDisabled(true);
-        mafApplyCorrectionsAction->setDisabled(true);
-    }
-
     mafMenu->addAction(mafShowAffectedAction);
     mafMenu->addAction(mafApplyCorrectionsAction);
 

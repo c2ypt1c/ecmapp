@@ -18,19 +18,15 @@ public:
     ~MainWindow();
 
     void parseCsv(QString);
-    void setMode(QString);
-    int findAirflowIndex(QStringList);
-    int findWBFactorIndex(QStringList);
-    void parseData(QFile *, int, int);
+    void setMode();
 
 public slots:
-    void importCvs();
+    void importCsv();
     void sdMode();
     void mafMode();
 
 private:
     Ui::MainWindow *ui;
-    QFile *csvFile;
 
     int airflowMode;
     bool fileImported;
