@@ -24,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mafTableWidget->setDisabled(true);
 
     airflowMode = 0;
-    fileImported = false;
 }
 
 MainWindow::~MainWindow()
@@ -32,6 +31,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// open file dialog
 void MainWindow::importCsv()
 {
     QFileDialog importDialog(this);
@@ -44,6 +44,7 @@ void MainWindow::importCsv()
     }
 }
 
+// parse exported ecmlink file
 void MainWindow::parseCsv(QString n)
 {
     // field indecies
@@ -56,9 +57,12 @@ void MainWindow::parseCsv(QString n)
     if(!csvFile->open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    // read header line and set mode
+    // read first (header) line and set mode
     QString l = csvFile->readLine().trimmed();
+
+    //////////
     setMode();
+    //////////
 
     QStringList fields = l.split(",");
 
@@ -120,6 +124,7 @@ void MainWindow::parseCsv(QString n)
     }
 }
 
+// set sd or maf mode
 void MainWindow::setMode()
 {
     QMessageBox msgBox;
