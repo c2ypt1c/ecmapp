@@ -140,7 +140,7 @@ void MafTable::calcAffectedCells()
     affectedRows.clear();
 
     // populates MafTable::affectedRows to correspond with wbfactor entries
-    for(int i = 0, rawVal = 0, rowVal = 0; i < mafRawList.length(); i++)
+    for(int i = 0, rowVal = 0, rawVal = 0; i < mafRawList.length(); i++)
     {
         rawVal = mafRawList[i];
 
@@ -191,15 +191,15 @@ void MafTable::mafApplyCorrections()
     QList<int> trAffectedRows;
 
     QList<int> avgList;
-    avgList.append(0);
 
     // determine denominator for average
     for(int i = 0, aVal; i < affectedRows.count(); i++)
     {
         aVal = affectedRows[i];
 
-        if(trAffectedRows.contains(aVal))
-            avgList[trAffectedRows.count()] += 1;
+        int j = trAffectedRows.indexOf(aVal);
+        if(j != -1)
+            avgList[j] += 1;
 
         else
         {
@@ -207,9 +207,6 @@ void MafTable::mafApplyCorrections()
             avgList.append(1);
         }
     }
-
-    // remove first 0 to match index of trimmed list
-    avgList.pop_front();
 
     // calculate average and store in correctedList
     QList<float> correctedList;
