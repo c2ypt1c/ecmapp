@@ -206,7 +206,7 @@
   </action>
   <action name="actionImportCvs">
    <property name="text">
-    <string>Import CVS</string>
+    <string>Import CSV</string>
    </property>
   </action>
  </widget>

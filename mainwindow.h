@@ -27,9 +27,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-
     int airflowMode;
-    bool fileImported;
 };
 
 #endif // MAINWINDOW_H

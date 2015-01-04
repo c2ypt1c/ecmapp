@@ -7,7 +7,6 @@
 #include <QApplication>
 #include <QRegularExpression>
 #include <QMessageBox>
-//#include <QtGlobal>
 
 MafTable::MafTable(QWidget *parent):
     QTableWidget (parent)
@@ -140,10 +139,8 @@ void MafTable::calcAffectedCells()
     affectedRows.clear();
 
     // populates MafTable::affectedRows to correspond with wbfactor entries
-    for(int i = 0, rowVal = 0, rawVal = 0; i < mafRawList.length(); i++)
+    for(int i = 0, rowVal = 0; i < mafRawList.length(); i++)
     {
-        rawVal = mafRawList[i];
-
         // qRound does the dirty work for us
         rowVal = qRound(mafRawList[i]/100);
         affectedRows.append(rowVal*100);

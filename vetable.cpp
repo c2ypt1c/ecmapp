@@ -7,7 +7,6 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QMessageBox>
-#include <QDialogButtonBox>
 
 VeTable::VeTable(QWidget *parent):
     QTableWidget (parent)
