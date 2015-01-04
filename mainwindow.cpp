@@ -15,9 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->actionImportCvs, SIGNAL(triggered()), this, SLOT(importCsv()));
 
-    QString labelStyle = "QPushButton{color: rgba(0,0,100,160); font: bold}";
-    ui->veButton->setStyleSheet(labelStyle);
-    ui->mafButton->setStyleSheet(labelStyle);
+    QString labelStyle = "QLabel{color: rgba(0,0,100,160); font: bold}";
+    ui->veLabel->setStyleSheet(labelStyle);
+    ui->mafLabel->setStyleSheet(labelStyle);
 
     // disable tables until file loaded
     ui->veTableWidget->setDisabled(true);
