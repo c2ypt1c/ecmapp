@@ -280,96 +280,85 @@ void VeTable::loadDefault()
 
 void VeTable::showAffectedCells()
 {
-    QList<float> effectiveRpmList;
-    QList<float> singularRpmList;
-
-    QList<int> header = {0, 500, 1000, 1500, 2000, 2500,
+    QList<int> rpmHeader = {0, 500, 1000, 1500, 2000, 2500,
                          3000, 3500, 4000, 4500, 5000, 5500,
                          6000, 6500, 7000, 7500, 8000, 8500,
                          9000, 9500, 10000};
 
-    QList<int> psiIndexList;
+    QList<float> psiHeader = {-30, -26.3, -22.5, -18.8, -15.1, -11.2, -7.6, -3.7, 0.0,
+                               1.8, 3.7, 5.5, 7.3, 9.2, 11.0, 12.9, 14.7, 16.5, 18.4, 22.0,
+                               25.7, 29.4, 33.1, 36.7, 40.4};
 
-    float rpm;
-    for(int i = 0; i < rpmList.length(); i++)
+    for(int i = 0; i < rpmList.count(); i++)
     {
-        // build effective rpm list
-        rpm = rpmRound(rpmList[i]);
-        effectiveRpmList.append(rpm);
+        for(int j = 0; j < rpmHeader .count()-1; j++)
+        {
+            int rIndex = j;
+            int lIndex = j+1;
+
+            float rpm = rpmList[i];
+            float rHead = rpmHeader[rIndex];
+            float lHead = rpmHeader[lIndex];
+
+            if(rpm >= rHead && rpm < lHead)
+            {
+                float rPer = rHead/rpm;
+                float lPer = rpm/lHead;
+
+                if(lPer >= 0.954545)
+                    rpmIndecies.append(j+1);
+                else
+                    rpmIndecies.append(j);
+
+                QList<float> percentages;
+                percentages.append(rPer);
+                percentages.append(lPer);
+
+                rpmPercents.append(percentages);
+                qDebug() << "rpm: " << rpm;
+                qDebug() << rPer << " (" << rHead << ")";
+                qDebug() << lPer << " (" << lHead << ")";
+            }
+        }
     }
 
-    // removes duplicates from effective rpm list
-    for(int i = 0; i < effectiveRpmList.length(); i++)
+    for(int i = 0; i < psiList.count(); i++)
     {
-        if(!singularRpmList.contains(effectiveRpmList[i]))
-            singularRpmList.append(effectiveRpmList[i]);
+        for(int j = 0; j < psiHeader.count()-1; j++)
+        {
+            int rIndex = j;
+            int lIndex = j+1;
+
+            float psi = psiList[i];
+            float rHead = psiHeader[rIndex];
+            float lHead = psiHeader[lIndex];
+
+            if(psi >= rHead && psi < lHead)
+            {
+                float rPer = rHead/psi;
+                float lPer = psi/lHead;
+
+                if(lPer >= 0.954545)
+                    psiIndecies.append(j+1);
+                else
+                    psiIndecies.append(j);
+
+                QList<float> percentages;
+                percentages.append(rPer);
+                percentages.append(lPer);
+
+                psiPercents.append(percentages);
+                qDebug() << "psi: " << psi;
+                qDebug() << rPer << " (" << rHead << ")";
+                qDebug() << lPer << " (" << lHead << ")";
+            }
+        }
     }
 
-    float psi;
-    for(int i = 0; i < psiList.length(); i++)
-    {
-        psi = psiRound(psiList[i]);
-        psiIndexList.append(psi);
-    }
+    //qDebug() << "breakpoint";
 
-    QList<float> singularPsiIndexList;
-    for(int i = 0; i < psiIndexList.length(); i++)
-    {
-        if(!singularPsiIndexList.contains(psiIndexList[i]))
-            singularPsiIndexList.append(psiIndexList[i]);
-    }
-
-    // highlight cells
-    for(int i = 0; i < veList.length(); i++)
-    {
-        int cIndex = header.indexOf(effectiveRpmList[i]);
-        int rIndex = psiIndexList[i];
-        veTable->item(rIndex, cIndex)->setSelected(true);
-    }
-}
-
-int VeTable::rpmRound(float r)
-{
-    // cast int to floor value
-    int intPart = (int)r/1000;
-    float fractionPart = (r/1000 - intPart)*1000;
-
-    if(fractionPart < 250)
-        fractionPart = 0;
-
-    else if(fractionPart <= 500||fractionPart < 750)
-        fractionPart = 500;
-
-    else
-    {
-        intPart++;
-        fractionPart = 0;
-    }
-
-    return (intPart + (fractionPart/1000)) * 1000;
-}
-
-int VeTable::psiRound(float p)
-{
-    QList<float> boostList = {-30, -26.3, -22.5, -18.8, -15.1, -11.2, -7.6, -3.7, 0.0,
-                             1.8, 3.7, 5.5, 7.3, 9.2, 11.0, 12.9, 14.7, 16.5, 18.4, 22.0,
-                             25.7, 29.4, 33.1, 36.7, 40.4};
-
-    QList<float> midwayList;
-
-    for(int i = 0; i < boostList.count()-1; i++)
-        midwayList.append((boostList[i+1]-boostList[i])/2);
-
-    for(int i = 0; i < midwayList.length(); i++)
-    {
-        float midway = midwayList[i];
-        float cellBoost = boostList[i];
-        float diff = p - midway;
-        if(diff < cellBoost)
-            return i;
-    }
-
-    return -99;
+    for(int i = 0; i < rpmList.count(); i++)
+        veTable->item(psiIndecies[i], rpmIndecies[i])->setSelected(true);
 }
 
 void VeTable::createActions()

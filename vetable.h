@@ -2,6 +2,7 @@
 #define VETABLE_H
 
 #include <QTableWidget>
+#include <QVector>
 
 class VeTable: public QTableWidget
 {
@@ -13,13 +14,17 @@ public:
 
     void initVETable();
     void createActions();
-    int rpmRound(float);
-    int psiRound(float);
 
     QList<float> veList;
     QList<float> rpmList;
     QList<float> psiList;
     QList<float> wbfList;
+
+    QList<QList<float>> rpmPercents;
+    QList<float> rpmIndecies;
+    QList<QList<float>> psiPercents;
+    QList<float> psiIndecies;
+
 
 public slots:
     void updateCell(QTableWidgetItem *);
