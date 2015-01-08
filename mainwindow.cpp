@@ -86,7 +86,13 @@ void MainWindow::parseCsv(QString n)
             QMessageBox::warning(this, NULL, "Speed Density requires RPM, Boost, and VE data");
             return;
         }
+
+        ui->veTableWidget->veList = new QList<float>;
+        ui->veTableWidget->rpmList = new QList<float>;
+        ui->veTableWidget->psiList = new QList<float>;
+        ui->veTableWidget->wbfList = new QList<float>;
     }
+
 
     else if(airflowMode == 2)
     {
@@ -98,6 +104,9 @@ void MainWindow::parseCsv(QString n)
             QMessageBox::warning(this, NULL, "Mass Airflow requires MAFRaw data");
             return;
         }
+
+        ui->mafTableWidget->mafRawList = new QList<float>;
+        ui->mafTableWidget->wbfList = new QList<float>;
     }
 
     // read file line-by-line
@@ -109,19 +118,22 @@ void MainWindow::parseCsv(QString n)
         // if sd mode, fill ve table lists
         if(airflowMode == 1)
         {
-            ui->veTableWidget->veList.append(lineSplit[ve].toFloat());
-            ui->veTableWidget->rpmList.append(lineSplit[rpm].toFloat());
-            ui->veTableWidget->psiList.append(lineSplit[psi].toFloat());
-            ui->veTableWidget->wbfList.append(lineSplit[wbfactor].toFloat());
+            ui->veTableWidget->veList->append(lineSplit[ve].toFloat());
+            ui->veTableWidget->rpmList->append(lineSplit[rpm].toFloat());
+            ui->veTableWidget->psiList->append(lineSplit[psi].toFloat());
+            ui->veTableWidget->wbfList->append(lineSplit[wbfactor].toFloat());
         }
 
         // if maf mode, fill maf table lists
         else if(airflowMode == 2)
         {
-            ui->mafTableWidget->mafRawList.append(lineSplit[mafraw].toFloat());
-            ui->mafTableWidget->wbfList.append(lineSplit[wbfactor].toFloat());
+            ui->mafTableWidget->mafRawList->append(lineSplit[mafraw].toFloat());
+            ui->mafTableWidget->wbfList->append(lineSplit[wbfactor].toFloat());
         }
     }
+
+    if(airflowMode == 1)
+        ui->veTableWidget->fileLoaded();
 }
 
 // set sd or maf mode

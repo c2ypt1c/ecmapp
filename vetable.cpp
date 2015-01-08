@@ -278,8 +278,14 @@ void VeTable::loadDefault()
     }
 }
 
-void VeTable::showAffectedCells()
+void VeTable::fileLoaded()
 {
+    rpmPercents = new QList<QList<float>>;
+    psiPercents = new QList<QList<float>>;
+
+    rpmIndecies = new QList<float>;
+    psiIndecies = new QList<float>;
+
     QList<int> rpmHeader = {0, 500, 1000, 1500, 2000, 2500,
                          3000, 3500, 4000, 4500, 5000, 5500,
                          6000, 6500, 7000, 7500, 8000, 8500,
@@ -289,14 +295,14 @@ void VeTable::showAffectedCells()
                                1.8, 3.7, 5.5, 7.3, 9.2, 11.0, 12.9, 14.7, 16.5, 18.4, 22.0,
                                25.7, 29.4, 33.1, 36.7, 40.4};
 
-    for(int i = 0; i < rpmList.count(); i++)
+    for(int i = 0; i < rpmList->length(); i++)
     {
-        for(int j = 0; j < rpmHeader .count()-1; j++)
+        for(int j = 0; j < rpmHeader.length()-1; j++)
         {
             int rIndex = j;
             int lIndex = j+1;
 
-            float rpm = rpmList[i];
+            float rpm = rpmList->at(i);
             float rHead = rpmHeader[rIndex];
             float lHead = rpmHeader[lIndex];
 
@@ -306,15 +312,15 @@ void VeTable::showAffectedCells()
                 float lPer = rpm/lHead;
 
                 if(lPer >= 0.954545)
-                    rpmIndecies.append(j+1);
+                    rpmIndecies->append(j+1);
                 else
-                    rpmIndecies.append(j);
+                    rpmIndecies->append(j);
 
                 QList<float> percentages;
                 percentages.append(rPer);
                 percentages.append(lPer);
 
-                rpmPercents.append(percentages);
+                rpmPercents->append(percentages);
                 qDebug() << "rpm: " << rpm;
                 qDebug() << rPer << " (" << rHead << ")";
                 qDebug() << lPer << " (" << lHead << ")";
@@ -322,14 +328,14 @@ void VeTable::showAffectedCells()
         }
     }
 
-    for(int i = 0; i < psiList.count(); i++)
+    for(int i = 0; i < psiList->count(); i++)
     {
         for(int j = 0; j < psiHeader.count()-1; j++)
         {
             int rIndex = j;
             int lIndex = j+1;
 
-            float psi = psiList[i];
+            float psi = psiList->at(i);
             float rHead = psiHeader[rIndex];
             float lHead = psiHeader[lIndex];
 
@@ -339,26 +345,32 @@ void VeTable::showAffectedCells()
                 float lPer = psi/lHead;
 
                 if(lPer >= 0.954545)
-                    psiIndecies.append(j+1);
+                    psiIndecies->append(j+1);
                 else
-                    psiIndecies.append(j);
+                    psiIndecies->append(j);
 
                 QList<float> percentages;
                 percentages.append(rPer);
                 percentages.append(lPer);
 
-                psiPercents.append(percentages);
+                psiPercents->append(percentages);
                 qDebug() << "psi: " << psi;
                 qDebug() << rPer << " (" << rHead << ")";
                 qDebug() << lPer << " (" << lHead << ")";
             }
         }
     }
-
     //qDebug() << "breakpoint";
+}
 
-    for(int i = 0; i < rpmList.count(); i++)
-        veTable->item(psiIndecies[i], rpmIndecies[i])->setSelected(true);
+void VeTable::showAffectedCells()
+{
+    veTable->clearSelection();
+
+    for(int i = 0; i < rpmList->length(); i++)
+        veTable->item(psiIndecies->at(i), rpmIndecies->at(i))->setSelected(true);
+
+    veTable->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 void VeTable::createActions()

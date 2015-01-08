@@ -139,10 +139,10 @@ void MafTable::calcAffectedCells()
     affectedRows.clear();
 
     // populates MafTable::affectedRows to correspond with wbfactor entries
-    for(int i = 0, rowVal = 0; i < mafRawList.length(); i++)
+    for(int i = 0, rowVal = 0; i < mafRawList->length(); i++)
     {
         // qRound does the dirty work for us
-        rowVal = qRound(mafRawList[i]/100);
+        rowVal = qRound(mafRawList->at(i)/100);
         affectedRows.append(rowVal*100);
     }
 }
@@ -178,7 +178,7 @@ void MafTable::mafApplyCorrections()
     calcAffectedCells();
 
 
-    if(affectedRows.count() != wbfList.count())
+    if(affectedRows.count() != wbfList->count())
     {
         qDebug() << "count mismatch";
         return;
@@ -213,7 +213,7 @@ void MafTable::mafApplyCorrections()
         int j = 0;
         while(j < avgList[i])
         {
-            correction += wbfList[wbfIndex];
+            correction += wbfList->at(wbfIndex);
             j++;
             wbfIndex++;
         }

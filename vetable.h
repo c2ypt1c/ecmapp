@@ -14,16 +14,17 @@ public:
 
     void initVETable();
     void createActions();
+    void fileLoaded();
 
-    QList<float> veList;
-    QList<float> rpmList;
-    QList<float> psiList;
-    QList<float> wbfList;
+    QList<float> *veList;
+    QList<float> *rpmList;
+    QList<float> *psiList;
+    QList<float> *wbfList;
 
-    QList<QList<float>> rpmPercents;
-    QList<float> rpmIndecies;
-    QList<QList<float>> psiPercents;
-    QList<float> psiIndecies;
+    QList<QList<float>> *rpmPercents;
+    QList<QList<float>> *psiPercents;
+    QList<float> *rpmIndecies;
+    QList<float> *psiIndecies;
 
 
 public slots:

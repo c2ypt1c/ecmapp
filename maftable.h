@@ -14,8 +14,8 @@ public:
     void mafCreateActions();
     void calcAffectedCells();
 
-    QList<float> mafRawList;
-    QList<float> wbfList;
+    QList<float> *mafRawList;
+    QList<float> *wbfList;
     QList<int> affectedRows;
 
 public slots:
