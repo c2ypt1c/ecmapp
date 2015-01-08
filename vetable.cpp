@@ -13,7 +13,7 @@ VeTable::VeTable(QWidget *parent):
 {
     veTable = this;
 
-    connect(veTable, SIGNAL(itemChanged(QTableWidgetItem*)), SLOT(veUpdate(QTableWidgetItem*)));
+    connect(veTable, SIGNAL(itemChanged(QTableWidgetItem*)), SLOT(updateCell(QTableWidgetItem*)));
 
     const QStringList veColumns = {
         "0rpm", "500", "1000", "1500",
@@ -66,11 +66,11 @@ VeTable::VeTable(QWidget *parent):
     veTable->verticalHeaderItem(8)->setFont(f);
 
     // set up right-click context
-    veCreateActions();
+    createActions();
     veTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(veTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(veRightClick(QPoint)));
+    connect(veTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(rightClick(QPoint)));
 
-    veLoadDefault();
+    loadDefault();
 }
 
 VeTable::~VeTable()
@@ -78,7 +78,7 @@ VeTable::~VeTable()
     //delete veTable;
 }
 
-void VeTable::veUpdate(QTableWidgetItem *itm)
+void VeTable::updateCell(QTableWidgetItem *itm)
 {
     QString t = itm->text();
 
@@ -154,7 +154,7 @@ void VeTable::veUpdate(QTableWidgetItem *itm)
     itm->setBackgroundColor(c);
 }
 
-void VeTable::veCopy()
+void VeTable::copy()
 {
     QClipboard *clipboard = QApplication::clipboard();
 
@@ -182,7 +182,7 @@ void VeTable::veCopy()
     }
 }
 
-void VeTable::vePaste()
+void VeTable::paste()
 {
     // get clipboard contents
     QClipboard *clipboard = QApplication::clipboard();
@@ -233,7 +233,7 @@ void VeTable::vePaste()
     }
 }
 
-void VeTable::veLoadDefault()
+void VeTable::loadDefault()
 {
     QString vals = "55.0 55.0 57.0 63.5 67.0 66.0 74.0 71.5 75.5 77.5 75.5 75.5 75.5 73.0 72.0 72.0 72.0 72.0 72.0 72.0 72.0 "
             "55.0 55.0 57.0 63.5 67.0 66.0 74.0 71.5 75.5 77.5 75.5 75.5 75.5 73.0 72.0 72.0 72.0 72.0 72.0 72.0 72.0 "
@@ -280,34 +280,121 @@ void VeTable::veLoadDefault()
 
 void VeTable::showAffectedCells()
 {
-    qDebug() << "rpmList: " << rpmList;
-    qDebug() << "psiList: " << psiList;
-    qDebug() << "veList: " << veList;
+    QList<float> effectiveRpmList;
+    QList<float> singularRpmList;
+
+    QList<int> header = {0, 500, 1000, 1500, 2000, 2500,
+                         3000, 3500, 4000, 4500, 5000, 5500,
+                         6000, 6500, 7000, 7500, 8000, 8500,
+                         9000, 9500, 10000};
+
+    QList<int> psiIndexList;
+
+    float rpm;
+    for(int i = 0; i < rpmList.length(); i++)
+    {
+        // build effective rpm list
+        rpm = rpmRound(rpmList[i]);
+        effectiveRpmList.append(rpm);
+    }
+
+    // removes duplicates from effective rpm list
+    for(int i = 0; i < effectiveRpmList.length(); i++)
+    {
+        if(!singularRpmList.contains(effectiveRpmList[i]))
+            singularRpmList.append(effectiveRpmList[i]);
+    }
+
+    float psi;
+    for(int i = 0; i < psiList.length(); i++)
+    {
+        psi = psiRound(psiList[i]);
+        psiIndexList.append(psi);
+    }
+
+    QList<float> singularPsiIndexList;
+    for(int i = 0; i < psiIndexList.length(); i++)
+    {
+        if(!singularPsiIndexList.contains(psiIndexList[i]))
+            singularPsiIndexList.append(psiIndexList[i]);
+    }
+
+    // highlight cells
+    for(int i = 0; i < veList.length(); i++)
+    {
+        int cIndex = header.indexOf(effectiveRpmList[i]);
+        int rIndex = psiIndexList[i];
+        veTable->item(rIndex, cIndex)->setSelected(true);
+    }
 }
 
-void VeTable::veCreateActions()
+int VeTable::rpmRound(float r)
 {
-    veCopyAction = new QAction("Copy Table", this);
-    connect(veCopyAction, SIGNAL(triggered()), this, SLOT(veCopy()));
+    // cast int to floor value
+    int intPart = (int)r/1000;
+    float fractionPart = (r/1000 - intPart)*1000;
 
-    vePasteAction = new QAction("Paste Table", this);
-    connect(vePasteAction, SIGNAL(triggered()), this, SLOT(vePaste()));
+    if(fractionPart < 250)
+        fractionPart = 0;
 
-    veLoadDefaultAction = new QAction("Load Default", this);
-    connect(veLoadDefaultAction, SIGNAL(triggered()), this, SLOT(veLoadDefault()));
+    else if(fractionPart <= 500||fractionPart < 750)
+        fractionPart = 500;
 
-    veShowAffectedAction = new QAction("Show Affected Cells", this);
-    connect(veShowAffectedAction, SIGNAL(triggered()), SLOT(showAffectedCells()));
+    else
+    {
+        intPart++;
+        fractionPart = 0;
+    }
+
+    return (intPart + (fractionPart/1000)) * 1000;
 }
 
-void VeTable::veRightClick(QPoint p)
+int VeTable::psiRound(float p)
+{
+    QList<float> boostList = {-30, -26.3, -22.5, -18.8, -15.1, -11.2, -7.6, -3.7, 0.0,
+                             1.8, 3.7, 5.5, 7.3, 9.2, 11.0, 12.9, 14.7, 16.5, 18.4, 22.0,
+                             25.7, 29.4, 33.1, 36.7, 40.4};
+
+    QList<float> midwayList;
+
+    for(int i = 0; i < boostList.count()-1; i++)
+        midwayList.append((boostList[i+1]-boostList[i])/2);
+
+    for(int i = 0; i < midwayList.length(); i++)
+    {
+        float midway = midwayList[i];
+        float cellBoost = boostList[i];
+        float diff = p - midway;
+        if(diff < cellBoost)
+            return i;
+    }
+
+    return -99;
+}
+
+void VeTable::createActions()
+{
+    copyAction = new QAction("Copy Table", this);
+    connect(copyAction, SIGNAL(triggered()), this, SLOT(copy()));
+
+    pasteAction = new QAction("Paste Table", this);
+    connect(pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
+
+    loadDefaultAction = new QAction("Load Default", this);
+    connect(loadDefaultAction, SIGNAL(triggered()), this, SLOT(loadDefault()));
+
+    showAffectedAction = new QAction("Show Affected Cells", this);
+    connect(showAffectedAction, SIGNAL(triggered()), SLOT(showAffectedCells()));
+}
+
+void VeTable::rightClick(QPoint p)
 {
     QMenu *veMenu=new QMenu(this);
-    veMenu->addAction(veCopyAction);
-    veMenu->addAction(vePasteAction);
+    veMenu->addAction(copyAction);
+    veMenu->addAction(pasteAction);
     veMenu->addSeparator();
-    veMenu->addAction(veShowAffectedAction);
+    veMenu->addAction(showAffectedAction);
     veMenu->addSeparator();
-    veMenu->addAction(veLoadDefaultAction);
+    veMenu->addAction(loadDefaultAction);
     veMenu->popup(veTable->viewport()->mapToGlobal(p));
 }

@@ -12,7 +12,9 @@ public:
     ~VeTable();
 
     void initVETable();
-    void veCreateActions();
+    void createActions();
+    int rpmRound(float);
+    int psiRound(float);
 
     QList<float> veList;
     QList<float> rpmList;
@@ -20,22 +22,22 @@ public:
     QList<float> wbfList;
 
 public slots:
-    void veUpdate(QTableWidgetItem *);
-    void veRightClick(QPoint);
-    void veCopy();
-    void vePaste();
-    void veLoadDefault();
+    void updateCell(QTableWidgetItem *);
+    void rightClick(QPoint);
+    void copy();
+    void paste();
+    void loadDefault();
     void showAffectedCells();
 
 private:
     QTableWidget *veTable;
 
-    void veSetCell(QTableWidgetItem *, QString);
+    void setCell(QTableWidgetItem *, QString);
 
-    QAction *veCopyAction;
-    QAction *vePasteAction;
-    QAction *veLoadDefaultAction;
-    QAction *veShowAffectedAction;
+    QAction *copyAction;
+    QAction *pasteAction;
+    QAction *loadDefaultAction;
+    QAction *showAffectedAction;
 };
 
 #endif // VETABLE_H
