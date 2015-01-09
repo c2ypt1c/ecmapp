@@ -23,8 +23,8 @@ public:
 
     QList<QList<float>> *rpmPercents;
     QList<QList<float>> *psiPercents;
-    QList<float> *rpmIndecies;
-    QList<float> *psiIndecies;
+    QList<QList<float>> *rpmIndecies;
+    QList<QList<float>> *psiIndecies;
 
 
 public slots:
