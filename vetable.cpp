@@ -280,12 +280,6 @@ void VeTable::loadDefault()
 
 void VeTable::fileLoaded()
 {
-    rpmPercents = new QList<QList<float>>;
-    psiPercents = new QList<QList<float>>;
-
-    rpmIndecies = new QList<QList<float>>;
-    psiIndecies = new QList<QList<float>>;
-
     QList<int> rpmHeader = {0, 500, 1000, 1500, 2000, 2500,
                          3000, 3500, 4000, 4500, 5000, 5500,
                          6000, 6500, 7000, 7500, 8000, 8500,
@@ -295,123 +289,142 @@ void VeTable::fileLoaded()
                                1.8, 3.7, 5.5, 7.3, 9.2, 11.0, 12.9, 14.7, 16.5, 18.4, 22.0,
                                25.7, 29.4, 33.1, 36.7, 40.4};
 
-    for(int i = 0; i < rpmList->length(); i++)
+    rpmHeadIndecies = new QList<float>;
+    psiHeadIndecies = new QList<float>;
+    vePercentsBox = new QList<QList<float>>;
+    veValuesBox = new QList<QList<float>>;
+    veItemsBox = new QList<QList<QTableWidgetItem *>>;
+
+    for(int i = 0; i < veList->length(); i++)
     {
+        float rpm = rpmList->at(i);
+        float psi = psiList->at(i);
+
+        // find rpm header index
+        int rpmHeadIndex;
         for(int j = 0; j < rpmHeader.length()-1; j++)
         {
-            int rIndex = j;
-            int lIndex = j+1;
-
-            float rpm = rpmList->at(i);
-            float rHead = rpmHeader[rIndex];
-            float lHead = rpmHeader[lIndex];
-
-            if(rpm >= rHead && rpm < lHead)
+            if(rpm >= rpmHeader[j] && rpm < rpmHeader[j+1])
             {
-                float rPer = rHead/rpm;
-                float lPer = rpm/lHead;
-
-                if(lPer >= 0.9772727)
-                {
-                    QList<float> rpmRLIndecies;
-                    rpmRLIndecies.append(j+1);
-                    rpmRLIndecies.append(j+1);
-                    rpmIndecies->append(rpmRLIndecies);
-                }
-
-                else if(rPer >= 0.9772727)
-                {
-                    QList<float> rpmRLIndecies;
-                    rpmRLIndecies.append(j);
-                    rpmRLIndecies.append(j);
-                    rpmIndecies->append(rpmRLIndecies);
-                }
-
-                else
-                {
-                    QList<float> rpmRLIndecies;
-                    rpmRLIndecies.append(j);
-                    rpmRLIndecies.append(j+1);
-                    rpmIndecies->append(rpmRLIndecies);
-                }
-
-                QList<float> percentages;
-                percentages.append(rPer);
-                percentages.append(lPer);
-
-                rpmPercents->append(percentages);
-                qDebug() << "rpm: " << rpm;
-                qDebug() << rPer << " (" << rHead << ")";
-                qDebug() << lPer << " (" << lHead << ")";
+                rpmHeadIndex = j;
+                rpmHeadIndecies->append(j);
             }
         }
-    }
 
-    for(int i = 0; i < psiList->count(); i++)
-    {
-        for(int j = 0; j < psiHeader.count()-1; j++)
+        // find psi header index
+        int psiHeadIndex;
+        for(int j = 0; j < psiHeader.length()-1; j++)
         {
-            int rIndex = j;
-            int lIndex = j+1;
-
-            float psi = psiList->at(i);
-            float rHead = psiHeader[rIndex];
-            float lHead = psiHeader[lIndex];
-
-            if(psi >= rHead && psi < lHead)
+            if(psi >= psiHeader[j] && psi < psiHeader[j+1])
             {
-                float rPer = rHead/psi;
-                float lPer = psi/lHead;
-
-                if(lPer >= 0.9772727)
-                {
-                    QList<float> psiRLIndecies;
-                    psiRLIndecies.append(j+1);
-                    psiRLIndecies.append(j+1);
-                    psiIndecies->append(psiRLIndecies);
-                }
-
-                else if(rPer >= 0.9772727)
-                {
-                    QList<float> psiRLIndecies;
-                    psiRLIndecies.append(j);
-                    psiRLIndecies.append(j);
-                    psiIndecies->append(psiRLIndecies);
-                }
-
-                else
-                {
-                    QList<float> psiRLIndecies;
-                    psiRLIndecies.append(j);
-                    psiRLIndecies.append(j+1);
-                    psiIndecies->append(psiRLIndecies);
-                }
-
-                QList<float> percentages;
-                percentages.append(rPer);
-                percentages.append(lPer);
-
-                psiPercents->append(percentages);
-                qDebug() << "psi: " << psi;
-                qDebug() << rPer << " (" << rHead << ")";
-                qDebug() << lPer << " (" << lHead << ")";
+                psiHeadIndex = j;
+                psiHeadIndecies->append(j);
             }
         }
+
+        // build vePercentsBox
+        float lRpmPer = rpmHeader[rpmHeadIndex]/rpm;
+        float rRpmPer = rpm/rpmHeader[rpmHeadIndex+1];
+
+        float tPsiPer = psiHeader[psiHeadIndex]/psi;
+        float bPsiPer = psi/psiHeader[psiHeadIndex+1];
+
+        float tlPer = (tPsiPer + lRpmPer)/2;
+        float trPer = (tPsiPer + rRpmPer)/2;
+
+        float blPer = (bPsiPer + lRpmPer)/2;
+        float brPer = (bPsiPer + rRpmPer)/2;
+
+        QList<float> perBox;
+        perBox.append(tlPer);
+        perBox.append(trPer);
+        perBox.append(blPer);
+        perBox.append(brPer);
+        vePercentsBox->append(perBox);
+
+        // build veItemsBox
+        // note: this is for showAffectedCells()
+        QTableWidgetItem *tlItem = veTable->item(psiHeadIndex, rpmHeadIndex);
+        QTableWidgetItem *trItem = veTable->item(psiHeadIndex, rpmHeadIndex+1);
+        QTableWidgetItem *blItem = veTable->item(psiHeadIndex+1, rpmHeadIndex);
+        QTableWidgetItem *brItem = veTable->item(psiHeadIndex+1, rpmHeadIndex+1);
+
+        QList<QTableWidgetItem *> itemBox;
+        itemBox.append(tlItem);
+        itemBox.append(trItem);
+        itemBox.append(blItem);
+        itemBox.append(brItem);
+        veItemsBox->append(itemBox);
+
+        // build veValuesBox
+        float tlVal = veTable->item(psiHeadIndex, rpmHeadIndex)->text().toFloat();
+        float trVal = veTable->item(psiHeadIndex, rpmHeadIndex+1)->text().toFloat();
+        float blVal = veTable->item(psiHeadIndex+1, rpmHeadIndex)->text().toFloat();
+        float brVal = veTable->item(psiHeadIndex+1, rpmHeadIndex+1)->text().toFloat();
+
+        QList<float> valBox;
+        valBox.append(tlVal);
+        valBox.append(trVal);
+        valBox.append(blVal);
+        valBox.append(brVal);
+        veValuesBox->append(valBox);
     }
-    //qDebug() << "breakpoint";
+    averageWbfactor();
 }
 
 void VeTable::showAffectedCells()
 {
     veTable->clearSelection();
 
-    for(int i = 0; i < rpmList->length(); i++)
+    for(int i = 0; i < veItemsBox->length(); i++)
     {
-        veTable->item(psiIndecies->at(i).at(0), rpmIndecies->at(i).at(0))->setSelected(true);
-        veTable->item(psiIndecies->at(i).at(1), rpmIndecies->at(i).at(1))->setSelected(true);
+        for(int j = 0; j < 4; j++)
+        {
+            if(vePercentsBox->at(i).at(j) > 0.957)
+                veItemsBox->at(i).at(j)->setSelected(true);
+        }
     }
 
     veTable->setSelectionMode(QAbstractItemView::NoSelection);
+}
+
+void VeTable::applyCorrections()
+{
+    veTable->clearSelection();
+    for(int i = 0; i < veList->length(); i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            if(vePercentsBox->at(i).at(j) > 0.957)
+            {
+                // divide wbf and split between veValuesBox
+                float wbf = (wbfList->at(i)/4)/100;
+
+                float newVal = veValuesBox->at(i).at(j);
+                newVal = newVal +(newVal*wbf);
+
+                veItemsBox->at(i).at(j)->setText(QString::number(newVal, 'f', 1));
+                veItemsBox->at(i).at(j)->setSelected(true);
+            }
+        }
+    }
+    veTable->setSelectionMode(QAbstractItemView::NoSelection);
+    //qDebug() << "break here";
+}
+
+void VeTable::averageWbfactor()
+{
+    QList<QList<float>> *avgWbfList = new QList<QList<float>>;
+
+    for(int i = 0; i < veList->length(); i++)
+    {
+        int rpmHeadCount = rpmHeadIndecies->count(rpmHeadIndecies->at(i))-i;
+        int psiHeadCount = psiHeadIndecies->count(psiHeadIndecies->at(i))-i;
+        if(rpmHeadCount == psiHeadCount)
+        {
+            qDebug() << "break";
+        }
+    }
 }
 
 void VeTable::createActions()
@@ -427,6 +440,9 @@ void VeTable::createActions()
 
     showAffectedAction = new QAction("Show Affected Cells", this);
     connect(showAffectedAction, SIGNAL(triggered()), SLOT(showAffectedCells()));
+
+    applyCorrectionsAction = new QAction("Apply WBFactor Corrections", this);
+    connect(applyCorrectionsAction, SIGNAL(triggered()), SLOT(applyCorrections()));
 }
 
 void VeTable::rightClick(QPoint p)
@@ -436,6 +452,7 @@ void VeTable::rightClick(QPoint p)
     veMenu->addAction(pasteAction);
     veMenu->addSeparator();
     veMenu->addAction(showAffectedAction);
+    veMenu->addAction(applyCorrectionsAction);
     veMenu->addSeparator();
     veMenu->addAction(loadDefaultAction);
     veMenu->popup(veTable->viewport()->mapToGlobal(p));

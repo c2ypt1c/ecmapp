@@ -21,11 +21,12 @@ public:
     QList<float> *psiList;
     QList<float> *wbfList;
 
-    QList<QList<float>> *rpmPercents;
-    QList<QList<float>> *psiPercents;
-    QList<QList<float>> *rpmIndecies;
-    QList<QList<float>> *psiIndecies;
+    QList<QList<float>> *vePercentsBox;
+    QList<QList<float>> *veValuesBox;
+    QList<QList<QTableWidgetItem *>> *veItemsBox;
 
+    QList<float> *rpmHeadIndecies;
+    QList<float> *psiHeadIndecies;
 
 public slots:
     void updateCell(QTableWidgetItem *);
@@ -34,16 +35,19 @@ public slots:
     void paste();
     void loadDefault();
     void showAffectedCells();
+    void applyCorrections();
 
 private:
     QTableWidget *veTable;
 
     void setCell(QTableWidgetItem *, QString);
+    void averageWbfactor();
 
     QAction *copyAction;
     QAction *pasteAction;
     QAction *loadDefaultAction;
     QAction *showAffectedAction;
+    QAction *applyCorrectionsAction;
 };
 
 #endif // VETABLE_H
