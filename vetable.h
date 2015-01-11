@@ -28,6 +28,8 @@ public:
     QList<float> *rpmHeadIndecies;
     QList<float> *psiHeadIndecies;
 
+    QList<float> *avgWbfList;
+
 public slots:
     void updateCell(QTableWidgetItem *);
     void rightClick(QPoint);

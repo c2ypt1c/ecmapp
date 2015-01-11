@@ -369,7 +369,6 @@ void VeTable::fileLoaded()
         valBox.append(brVal);
         veValuesBox->append(valBox);
     }
-    averageWbfactor();
 }
 
 void VeTable::showAffectedCells()
@@ -391,6 +390,9 @@ void VeTable::showAffectedCells()
 void VeTable::applyCorrections()
 {
     veTable->clearSelection();
+
+    averageWbfactor();
+
     for(int i = 0; i < veList->length(); i++)
     {
         for(int j = 0; j < 4; j++)
@@ -398,10 +400,10 @@ void VeTable::applyCorrections()
             if(vePercentsBox->at(i).at(j) > 0.957)
             {
                 // divide wbf and split between veValuesBox
-                float wbf = (wbfList->at(i)/4)/100;
-
+                float adjust = (avgWbfList->at(i)/4)/100;
                 float newVal = veValuesBox->at(i).at(j);
-                newVal = newVal +(newVal*wbf);
+
+                newVal = newVal +(newVal*adjust);
 
                 veItemsBox->at(i).at(j)->setText(QString::number(newVal, 'f', 1));
                 veItemsBox->at(i).at(j)->setSelected(true);
@@ -414,16 +416,45 @@ void VeTable::applyCorrections()
 
 void VeTable::averageWbfactor()
 {
-    QList<QList<float>> *avgWbfList = new QList<QList<float>>;
+    QList<QList<float>> *sortedWbfList = new QList<QList<float>>;
+    QList<float> *tlItems = new QList<float>;
 
-    for(int i = 0; i < veList->length(); i++)
+    for(int i = 0; i < rpmHeadIndecies->length(); i++)
+        tlItems->append(rpmHeadIndecies->at(i) * psiHeadIndecies->at(i));
+
+    QList<float> usedItems;
+    for(int i = 0; i < tlItems->length(); i++)
     {
-        int rpmHeadCount = rpmHeadIndecies->count(rpmHeadIndecies->at(i))-i;
-        int psiHeadCount = psiHeadIndecies->count(psiHeadIndecies->at(i))-i;
-        if(rpmHeadCount == psiHeadCount)
+        QList<float> wbfCount;
+        if(!usedItems.contains(tlItems->at(i)))
         {
-            qDebug() << "break";
+            // mark item as used
+            usedItems.append(tlItems->at(i));
+
+            int itemCount = tlItems->count(tlItems->at(i));
+
+            for(int j = 0, index = 0; j < itemCount; j++, index++)
+            {
+                index = tlItems->indexOf(tlItems->at(i), index);
+                float wbf = wbfList->at(index);
+                wbfCount.append(wbf);
+            }
+            sortedWbfList->append(wbfCount);
         }
+    }
+
+    avgWbfList = new QList<float>;
+
+    for(int i = 0; i < sortedWbfList->length(); i++)
+    {
+        float avgWbf = 0;
+        int count = sortedWbfList->at(i).length();
+
+        for(int j = 0; j < count; j++)
+            avgWbf += sortedWbfList->at(i).at(j);
+
+        for(int j = 0; j < count; j++)
+            avgWbfList->append(avgWbf/count);
     }
 }
 
